@@ -1,0 +1,71 @@
+﻿<Window x:Class="Calculator.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:local="clr-namespace:Calculator"
+		mc:Ignorable="d"
+		Title="MainWindow"
+		Height="207"
+		Width="509">
+	<Grid Margin="0,0,2,-1">
+		<TextBox x:Name="tbInfix"
+				 HorizontalAlignment="Left"
+				 Height="23"
+				 Margin="55,30,0,0"
+				 TextWrapping="Wrap"
+				 Text="(3 + 4)(5 - 6)"
+				 VerticalAlignment="Top"
+				 Width="80" />
+		<Label x:Name="lbInfix"
+			   Content="Infix"
+			   HorizontalAlignment="Left"
+			   Margin="18,27,0,0"
+			   VerticalAlignment="Top" />
+		<Label x:Name="lbTokens"
+			   Content="Tokens"
+			   HorizontalAlignment="Left"
+			   Margin="4,62,0,0"
+			   VerticalAlignment="Top"
+			   RenderTransformOrigin="0.674,0.192" />
+		<TextBox x:Name="tbPostfix"
+				 HorizontalAlignment="Left"
+				 Height="23"
+				 Margin="265,30,0,0"
+				 TextWrapping="Wrap"
+				 VerticalAlignment="Top"
+				 Width="120"
+				 IsReadOnly="True" />
+		<Label x:Name="lbPostfix"
+			   Content="Postfix"
+			   HorizontalAlignment="Left"
+			   Margin="215,27,0,0"
+			   VerticalAlignment="Top" />
+		<Button x:Name="btnConvert"
+				Content="Convert"
+				HorizontalAlignment="Left"
+				Margin="285,105,0,0"
+				VerticalAlignment="Top"
+				Width="204"
+				Height="60"
+				Click="btnConvert_Click" />
+		<ListBox x:Name="lboxTokens"
+				 HorizontalAlignment="Left"
+				 Height="100"
+				 Margin="55,61,0,0"
+				 VerticalAlignment="Top"
+				 Width="80"
+				 RenderTransformOrigin="-6.184,0.821">
+			<ListBox.RenderTransform>
+				<TransformGroup>
+					<ScaleTransform />
+					<SkewTransform />
+					<RotateTransform Angle="0.732" />
+					<TranslateTransform X="-0.398"
+										Y="-2.139" />
+				</TransformGroup>
+			</ListBox.RenderTransform>
+		</ListBox>
+
+	</Grid>
+</Window>
