@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,13 +11,22 @@ namespace Calculator
 	class Token
 	{
 
-		public static void Initialize()
+
+		//Statics
+		private static readonly bool _initialized;
+		static Token()
 		{
+
+			//only execute this method once
+			if(_initialized)
+				return;
+
+			//Define the valid / known tokens
 			_functions = "sin( abs( cos( tan( asin( acos( atan( sqrt( log( ln(".Split(' ');
 			_operators = "+ - * / % ^".Split(' ');
 			_seperators = "( ) ,".Split(' ');
 
-			ValidTokens = new[] { _functions, _operators, _seperators }.SelectMany(arr => arr).ToArray();
+			ValidTokens = new[] { _functions, _operators, _seperators }.SelectMany(tok => tok).ToArray();
 
 
 			//Precedences
@@ -60,16 +71,23 @@ namespace Calculator
 			_associativities.Add("log(", AssociativityType.Right);
 			_associativities.Add("ln(", AssociativityType.Right);
 			_associativities.Add("abs(", AssociativityType.Right);
+
+			//Set initialized flag to true
+			_initialized = true;
 		}
 
-		private static string[] _functions;
-		private static string[] _operators;
-		private static string[] _seperators;
+		private static readonly string[] _functions;
+		private static readonly string[] _operators;
+		private static readonly string[] _seperators;
 
-		private static Dictionary<string, int> _precedences;
-		private static Dictionary<string, AssociativityType> _associativities;
+		private static readonly Dictionary<string, int> _precedences;
+		private static readonly Dictionary<string, AssociativityType> _associativities;
 
 		public static string[] ValidTokens;
+
+
+
+		// ==================
 
 
 
@@ -106,8 +124,16 @@ namespace Calculator
 
 
 			//Precendence and associativity
-			Precedence = _precedences[c];
-			Associativity = _associativities[c];
+			if (Type == TokenType.Number)
+			{
+				Precedence = 0;
+				Associativity = AssociativityType.None;
+			}
+			else
+			{
+				Precedence = _precedences[c];
+				Associativity = _associativities[c];
+			}
 		}
 
 		//Enums
@@ -130,8 +156,8 @@ namespace Calculator
 
 
 		//Properties
-		public string Content { get; private set; }
-		public TokenType Type { get; private set; }
+		public string Content { get; }
+		public TokenType Type { get; }
 		public int Precedence { get; private set; }
 		public AssociativityType Associativity { get; private set; }
 

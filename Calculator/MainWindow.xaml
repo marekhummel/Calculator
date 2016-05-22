@@ -6,66 +6,43 @@
 		xmlns:local="clr-namespace:Calculator"
 		mc:Ignorable="d"
 		Title="MainWindow"
-		Height="207"
-		Width="509">
+		Height="137"
+		Width="519">
 	<Grid Margin="0,0,2,-1">
 		<TextBox x:Name="tbInfix"
 				 HorizontalAlignment="Left"
 				 Height="23"
-				 Margin="55,30,0,0"
+				 Margin="68,30,0,0"
 				 TextWrapping="Wrap"
-				 Text="(3 + 4)(5 - 6)"
+				 Text="1 + 2 * 3 - 4"
 				 VerticalAlignment="Top"
-				 Width="80" />
+				 Width="295" />
 		<Label x:Name="lbInfix"
 			   Content="Infix"
 			   HorizontalAlignment="Left"
 			   Margin="18,27,0,0"
 			   VerticalAlignment="Top" />
-		<Label x:Name="lbTokens"
-			   Content="Tokens"
-			   HorizontalAlignment="Left"
-			   Margin="4,62,0,0"
-			   VerticalAlignment="Top"
-			   RenderTransformOrigin="0.674,0.192" />
 		<TextBox x:Name="tbPostfix"
 				 HorizontalAlignment="Left"
 				 Height="23"
-				 Margin="265,30,0,0"
+				 Margin="68,68,0,0"
 				 TextWrapping="Wrap"
 				 VerticalAlignment="Top"
-				 Width="120"
+				 Width="295"
 				 IsReadOnly="True" />
 		<Label x:Name="lbPostfix"
 			   Content="Postfix"
 			   HorizontalAlignment="Left"
-			   Margin="215,27,0,0"
+			   Margin="18,65,0,0"
 			   VerticalAlignment="Top" />
 		<Button x:Name="btnConvert"
 				Content="Convert"
 				HorizontalAlignment="Left"
-				Margin="285,105,0,0"
+				Margin="396,30,0,0"
 				VerticalAlignment="Top"
-				Width="204"
-				Height="60"
+				Width="104"
+				Height="61"
 				Click="btnConvert_Click" />
-		<ListBox x:Name="lboxTokens"
-				 HorizontalAlignment="Left"
-				 Height="100"
-				 Margin="55,61,0,0"
-				 VerticalAlignment="Top"
-				 Width="80"
-				 RenderTransformOrigin="-6.184,0.821">
-			<ListBox.RenderTransform>
-				<TransformGroup>
-					<ScaleTransform />
-					<SkewTransform />
-					<RotateTransform Angle="0.732" />
-					<TranslateTransform X="-0.398"
-										Y="-2.139" />
-				</TransformGroup>
-			</ListBox.RenderTransform>
-		</ListBox>
 
 	</Grid>
 </Window>

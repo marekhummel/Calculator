@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Windows;
 
 
@@ -16,11 +17,16 @@ namespace Calculator
 		private void btnConvert_Click(object sender, RoutedEventArgs e)
 		{
 			var infix = tbInfix.Text;
-			var tokens = ExpressionParser.Tokenize(infix);
-			//var postfix = ExpressionParser.InfixToPostfix(tokens);
 
-			tokens.ForEach(t => lboxTokens.Items.Add(t));
-			//tbPostfix.Text = string.Join(" ", postfix);
+			var tokens = ExpressionParser.Tokenize(infix);
+			List<Token> postfix;
+			var success = ExpressionParser.InfixToPostfix(tokens, out postfix);
+
+			if (!success)
+				return;
+
+			tbPostfix.Text = string.Join(" ", postfix);
 		}
+
 	}
-}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+}
