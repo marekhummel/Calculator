@@ -26,7 +26,7 @@ namespace Calculator
 		}
 
 
-		public static bool InfixToPostfix(List<Token> infix, out List<Token> postfix)
+		public static bool ShuntingYardAlgorithm(List<Token> infix, out List<Token> postfix)
 		{
 			postfix = null;
 
@@ -94,6 +94,12 @@ namespace Calculator
 
 							if(top.Type == Token.TokenType.LeftParenthesis)
 								break;
+
+							if (top.Type == Token.TokenType.Function)
+							{
+								res.Add(top);
+								break;
+							}
 
 							res.Add(top);
 						}

@@ -19,14 +19,16 @@ namespace Calculator
 			var infix = tbInfix.Text;
 
 			var tokens = ExpressionParser.Tokenize(infix);
+			lbTokens.Items.Clear();
+			tokens.ForEach(t => lbTokens.Items.Add(t.ToString()));
+
 			List<Token> postfix;
-			var success = ExpressionParser.InfixToPostfix(tokens, out postfix);
+			var success = ExpressionParser.ShuntingYardAlgorithm(tokens, out postfix);
 
 			if (!success)
 				return;
 
 			tbPostfix.Text = string.Join(" ", postfix);
 		}
-
 	}
 }

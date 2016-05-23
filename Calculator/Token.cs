@@ -22,7 +22,7 @@ namespace Calculator
 				return;
 
 			//Define the valid / known tokens
-			_functions = "sin( abs( cos( tan( asin( acos( atan( sqrt( log( ln(".Split(' ');
+			_functions = "sin( abs( cos( tan( asin( acos( atan( sqrt( log( ln( exp(".Split(' ');
 			_operators = "+ - * / % ^".Split(' ');
 			_seperators = "( ) ,".Split(' ');
 
@@ -49,6 +49,7 @@ namespace Calculator
 			_precedences.Add("log(", 4);
 			_precedences.Add("ln(", 4);
 			_precedences.Add("abs(", 4);
+			_precedences.Add("exp(", 4);
 
 
 			//Associativities
@@ -61,16 +62,17 @@ namespace Calculator
 			_associativities.Add("^", AssociativityType.Right);
 			_associativities.Add("(", AssociativityType.None);
 			_associativities.Add(")", AssociativityType.None);
-			_associativities.Add("sin(", AssociativityType.Right);
-			_associativities.Add("cos(", AssociativityType.Right);
-			_associativities.Add("tan(", AssociativityType.Right);
-			_associativities.Add("asin(", AssociativityType.Right);
-			_associativities.Add("acos(", AssociativityType.Right);
-			_associativities.Add("atan(", AssociativityType.Right);
-			_associativities.Add("sqrt(", AssociativityType.Right);
-			_associativities.Add("log(", AssociativityType.Right);
-			_associativities.Add("ln(", AssociativityType.Right);
-			_associativities.Add("abs(", AssociativityType.Right);
+			_associativities.Add("sin(", AssociativityType.None);
+			_associativities.Add("cos(", AssociativityType.None);
+			_associativities.Add("tan(", AssociativityType.None);
+			_associativities.Add("asin(", AssociativityType.None);
+			_associativities.Add("acos(", AssociativityType.None);
+			_associativities.Add("atan(", AssociativityType.None);
+			_associativities.Add("sqrt(", AssociativityType.None);
+			_associativities.Add("log(", AssociativityType.None);
+			_associativities.Add("ln(", AssociativityType.None);
+			_associativities.Add("abs(", AssociativityType.None);
+			_associativities.Add("exp(", AssociativityType.None);
 
 			//Set initialized flag to true
 			_initialized = true;
@@ -126,7 +128,7 @@ namespace Calculator
 			//Precendence and associativity
 			if (Type == TokenType.Number)
 			{
-				Precedence = 0;
+				Precedence = 99;
 				Associativity = AssociativityType.None;
 			}
 			else
