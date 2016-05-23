@@ -16,7 +16,8 @@
 				 TextWrapping="Wrap"
 				 Text="sin(3)"
 				 VerticalAlignment="Top"
-				 Width="295" />
+				 Width="295"
+				 TextChanged="tbInfix_TextChanged" />
 		<Label x:Name="lblInfix"
 			   Content="Infix"
 			   Margin="18,0,0,174"
@@ -30,7 +31,8 @@
 				 TextWrapping="Wrap"
 				 VerticalAlignment="Top"
 				 Width="295"
-				 IsReadOnly="True" />
+				 IsReadOnly="True"
+				 Background="#FFCFCCCC" />
 		<Label x:Name="lblPostfix"
 			   Content="Postfix"
 			   HorizontalAlignment="Left"
@@ -43,18 +45,36 @@
 				VerticalAlignment="Top"
 				Width="104"
 				Height="61"
+				IsDefault="True"
 				Click="btnConvert_Click" />
 		<ListBox x:Name="lbTokens"
 				 HorizontalAlignment="Left"
 				 Height="100"
 				 Margin="68,110,0,0"
 				 VerticalAlignment="Top"
-				 Width="100" />
+				 Width="100"
+				 Background="#FFCFCCCC" />
 		<Label x:Name="lblTokens"
 			   Content="Tokens"
 			   HorizontalAlignment="Left"
 			   Margin="18,110,0,0"
 			   VerticalAlignment="Top" />
+		<TextBox x:Name="tbResult"
+				 HorizontalAlignment="Left"
+				 Height="23"
+				 Margin="240,110,0,0"
+				 TextWrapping="Wrap"
+				 VerticalAlignment="Top"
+				 Width="123"
+				 IsReadOnly="True"
+				 Background="#FFCFCCCC" />
+		<Label x:Name="lblResult"
+			   Content="Result&#xD;&#xA;"
+			   HorizontalAlignment="Left"
+			   Margin="195,110,0,0"
+			   VerticalAlignment="Top"
+			   Width="52"
+			   Height="23" />
 
 	</Grid>
 </Window>
