@@ -11,8 +11,48 @@ namespace Calculator
 	static class ExpressionParser
 	{
 
+		//Define the operations
 		static ExpressionParser()
 		{
+			//Preset some operations
+			Func<double, int?> tryParse = d =>
+			{
+				int i;
+				if(!int.TryParse(d.ToString(CultureInfo.InvariantCulture), out i))
+					return null;
+				return i;
+			};
+
+			Func<double, double, double> gcd = null;
+			gcd = (a, b) =>
+			{
+				var i = tryParse(a);
+				var j = tryParse(b);
+				if (i == null || j == null)
+					return double.NaN;
+
+				return (j == 0) ? (double)i : gcd((double)j, (double)i % (double)j);
+			};
+
+			Func<double, double, double> lcm = (a, b) =>
+			{
+				var i = tryParse(a);
+				var j = tryParse(b);
+				if(i == null || j == null)
+					return double.NaN;
+
+				return ((double)i * (double)j) / gcd((double)i, (double)j);
+			};
+
+			Func<double, double> fact = a =>
+			{
+				var i = tryParse(a);
+				return i == null ? double.NaN : Enumerable.Range(1, (int)i).Aggregate(1, (x, y) => x * y);
+			};
+
+
+
+
 			//Initialze the _operations dictionaries
 			_binaryOperations = new Dictionary<string, Func<double, double, double>>();
 			_binaryOperations.Add("+", (a, b) => a + b);
@@ -35,32 +75,67 @@ namespace Calculator
 			_unaryOperations.Add("sqrt(", Math.Sqrt);
 			_unaryOperations.Add("ln(", Math.Log);
 			_unaryOperations.Add("exp(", Math.Exp);
-			_unaryOperations.Add("fact(", a =>
-			{
-				int inta;
-				if(!int.TryParse(a.ToString(), out inta))
-					return double.NaN;
+			_unaryOperations.Add("fact(", fact);
 
-				return Enumerable.Range(1, inta).Aggregate(1, (x, y) => x * y);
-			});
+			_polyadicFunctions = new Dictionary<string, Func<IEnumerable<double>, double>>();
+			_polyadicFunctions.Add("gcd(", ops => ops.Aggregate((a, b) => gcd(a, b)));
+			_polyadicFunctions.Add("lcm(", ops => ops.Aggregate((a, b) => lcm(a, b)));
+			_polyadicFunctions.Add("max(", ops => ops.Aggregate(Math.Max));
+			_polyadicFunctions.Add("min(", ops => ops.Aggregate(Math.Min));
 		}
 
-			
+		private static readonly Dictionary<string, Func<double, double, double>> _binaryOperations;
+		private static readonly Dictionary<string, Func<double, double>> _unaryOperations;
+		private static readonly Dictionary<string, Func<IEnumerable<double>, double>>_polyadicFunctions; 
+
+
+
+
+		//Tokenize of the infix string
 		public static List<Token> Tokenize(string infix)
 		{
 			//Define the pattern
-			var patternNums = @"\d*\.?\d+";
+			const string patternNums = @"\d*\.?\d+";
 			var patternOps = string.Join("|", Token.ValidTokens.Select(Regex.Escape));
 			var pattern = patternNums + "|" + patternOps;
 
 			//Find matches
-			var matches = Regex.Matches(infix, pattern);
+			var matches = Regex.Matches(infix, pattern, RegexOptions.IgnoreCase);
 
-			//Return each match as token
-			return matches.Cast<Match>().Select(m => new Token(m.ToString())).ToList();
+			//Convert the matches to tokens
+			var tokens = matches.Cast<Match>().Select(m => new Token(m.ToString())).ToList();
+
+
+			//Set arities for polyadic functions
+			foreach (var tk in tokens.Where(t => Token.PolyadicFunctions.Contains(t.Content)))
+			{
+				var index = tokens.FindIndex(t => t == tk);
+
+				var openparenthesis = 1;
+				var argsCount = 0;
+				var args = tokens.Skip(index + 1).TakeWhile(t =>
+				{
+					if (t.Type == Token.TokenType.Function)
+						openparenthesis++;
+					else if (t.Type == Token.TokenType.RightParathesis)
+						openparenthesis--;
+
+					if ((t.Type == Token.TokenType.Number || t.Type == Token.TokenType.RightParathesis) && openparenthesis == 1)
+						argsCount++;
+
+					return openparenthesis != 0;
+				}).ToList();
+
+				tokens[index].Arity = argsCount;
+			}
+
+
+			return tokens;
 		}
 
 
+
+		//Infix to postfix
 		public static bool ShuntingYardAlgorithm(List<Token> infix, out List<Token> postfix)
 		{
 			postfix = null;
@@ -162,6 +237,8 @@ namespace Calculator
 		}
 
 
+
+		//Evaluation of a infix string
 		public static double Evaluate(string infix)
 		{
 			//Tokenize the string
@@ -175,11 +252,7 @@ namespace Calculator
 			return success ? Evaluate(postfix) : double.NaN;
 		}
 
-
-
-		private static readonly Dictionary<string, Func<double, double, double>> _binaryOperations;
-		private static readonly Dictionary<string, Func<double, double>> _unaryOperations;
-
+		//Intern evaluation method
 		private static double Evaluate(IEnumerable<Token> postfix)
 		{
 			var tokens = new Queue<Token>(postfix);
@@ -239,10 +312,16 @@ namespace Calculator
 						switch(curr.Arity)
 						{
 							case 2:
-								value = _binaryOperations[curr.Content].Invoke(operands.Pop(), operands.Pop());
+								if (Token.PolyadicFunctions.Contains(curr.Content))
+									value = _polyadicFunctions[curr.Content].Invoke(operands);
+								else
+									value = _binaryOperations[curr.Content].Invoke(operands.Pop(), operands.Pop());
 								break;
 							case 1:
 								value = _unaryOperations[curr.Content].Invoke(operands.Pop());
+								break;
+							default:
+								value = _polyadicFunctions[curr.Content].Invoke(operands);
 								break;
 						}
 
@@ -257,7 +336,7 @@ namespace Calculator
 			}
 
 			//Result stack has to be reduced to one token of type number
-			return result.Count() == 1 ? result.Pop() : double.NaN;
+			return result.Count() == 1 ? Math.Round(result.Pop(), 10) : double.NaN;
 		}
 
 

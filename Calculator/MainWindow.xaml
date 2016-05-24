@@ -14,7 +14,7 @@
 				 Height="23"
 				 Margin="68,30,0,0"
 				 TextWrapping="Wrap"
-				 Text="sin(3)"
+				 Text="max(2, 4, min(11, 3), 5)"
 				 VerticalAlignment="Top"
 				 Width="295"
 				 TextChanged="tbInfix_TextChanged" />

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -22,12 +24,14 @@ namespace Calculator
 				return;
 
 			//Define the valid / known tokens
-			_functions = "sin( cos( tan( asin( acos( atan( abs( sqrt( log( ln( exp( fact(".Split(' ');
+			var polyadics = "gcd( lcm( max( min(".Split(' ');
+			_functions = "sin( cos( tan( asin( acos( atan( abs( sqrt( log( ln( exp( fact(".Split(' ').Concat(polyadics).ToArray();
+			_constants = "pi e".Split(' ');
 			_operators = "+ - * / % ^".Split(' ');
 			_seperators = "( ) ,".Split(' ');
 
-			ValidTokens = new[] { _functions, _operators, _seperators }.SelectMany(tok => tok).ToArray();
-
+			ValidTokens = new[] { _functions, _operators, _seperators, _constants }.SelectMany(tok => tok).ToArray();
+			PolyadicFunctions = polyadics; 
 
 			//Precedences
 			_precedence = new Dictionary<string, int>();
@@ -52,6 +56,11 @@ namespace Calculator
 			_precedence.Add("abs(", 4);
 			_precedence.Add("exp(", 4);
 			_precedence.Add("fact(", 4);
+			_precedence.Add("gcd(", 4);
+			_precedence.Add("lcm(", 4);
+			_precedence.Add("max(", 4);
+			_precedence.Add("min(", 4);
+
 
 
 			//Associativities
@@ -77,7 +86,10 @@ namespace Calculator
 			_associativity.Add("abs(", AssociativityType.None);
 			_associativity.Add("exp(", AssociativityType.None);
 			_associativity.Add("fact(", AssociativityType.None);
-
+			_associativity.Add("gcd(", AssociativityType.None);
+			_associativity.Add("lcm(", AssociativityType.None);
+			_associativity.Add("max(", AssociativityType.None);
+			_associativity.Add("min(", AssociativityType.None);
 
 			//Arities
 			_arity = new Dictionary<string, int>();
@@ -102,12 +114,17 @@ namespace Calculator
 			_arity.Add("abs(", 1);
 			_arity.Add("exp(", 1);
 			_arity.Add("fact(", 1);
+			_arity.Add("gcd(", 0);
+			_arity.Add("lcm(", 0);
+			_arity.Add("max(", 0);
+			_arity.Add("min(", 0);
 
 			//Set initialized flag to true
 			_initialized = true;
 		}
 
 		private static readonly string[] _functions;
+		private static readonly string[] _constants;
 		private static readonly string[] _operators;
 		private static readonly string[] _seperators;
 
@@ -116,6 +133,7 @@ namespace Calculator
 		private static readonly Dictionary<string, int> _arity;
 
 		public static string[] ValidTokens;
+		public static string[] PolyadicFunctions;
 
 
 
@@ -134,6 +152,11 @@ namespace Calculator
 			double n;
 			if(double.TryParse(c, out n))
 				Type = TokenType.Number;
+			else if (_constants.Contains(c))
+			{
+				Type = TokenType.Number;
+				Content = (c == "pi" ? Math.PI.ToString(CultureInfo.InvariantCulture) : Math.E.ToString(CultureInfo.InvariantCulture));
+			}
 			else if(_operators.Contains(c))
 				Type = TokenType.Operator;
 			else if(_functions.Contains(c))
@@ -195,7 +218,7 @@ namespace Calculator
 		public TokenType Type { get; }
 		public int Precedence { get; private set; }
 		public AssociativityType Associativity { get; private set; }
-		public int Arity { get; private set; }
+		public int Arity { get; set; }
 
 
 
