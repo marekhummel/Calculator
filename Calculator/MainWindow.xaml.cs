@@ -37,6 +37,11 @@ namespace Calculator
 			//Eval
 			var result = ExpressionParser.Evaluate(infix);
 			tbResult.Text = result.ToString(CultureInfo.InvariantCulture);
+
+			//ExpTree
+			var item = ExpressionParser.CreateExpressionTree(infix);
+			tvExptree.Items.Clear();
+			tvExptree.Items.Add(item);
 		}
 
 		private void tbInfix_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)

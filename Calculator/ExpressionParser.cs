@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Text.RegularExpressions;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Calculator
@@ -335,10 +337,116 @@ namespace Calculator
 				}
 			}
 
-			//Result stack has to be reduced to one token of type number
+			//Result stack has to be reduced to one token
 			return result.Count() == 1 ? Math.Round(result.Pop(), 10) : double.NaN;
 		}
 
+
+
+
+
+		//Creation of a expression tree based on a infix string
+		public static TreeViewItem CreateExpressionTree(string infix)
+		{
+			//Tokenize the string
+			var tokens = Tokenize(infix);
+
+			//Transform to postfix notation
+			List<Token> postfix;
+			var success = ShuntingYardAlgorithm(tokens, out postfix);
+
+			//Possible invalid infix
+			return success ? CreateExpressionTree(postfix) : null;
+		}
+
+		//Intern exptree method
+		private static TreeViewItem CreateExpressionTree(IEnumerable<Token> postfix)
+		{
+			var tokens = new Queue<Token>(postfix);
+			var result = new Stack<TreeViewItem>();
+
+			//Iterate through all tokens
+			while(tokens.Any())
+			{
+				//Get the current token
+				var curr = tokens.Dequeue();
+
+				//Act based on the token type
+				var newitem = new TreeViewItem { Header = curr.Content, IsExpanded = true};
+				switch(curr.Type)
+				{
+					case Token.TokenType.Number:
+						result.Push(newitem);
+						break;
+
+					case Token.TokenType.Operator:
+
+						if(result.Count() < curr.Arity)
+							return null;
+
+						//Add children
+						switch(curr.Arity)
+						{
+							case 2:
+								newitem.Items.Add(result.Pop());
+								newitem.Items.Insert(0, result.Pop());
+								result.Push(newitem);
+
+								break;
+							case 1:
+								newitem.Items.Add(result.Pop());
+								result.Push(newitem);
+
+								break;
+						}
+
+						break;
+
+					case Token.TokenType.Function:
+						var operands = new Stack<TreeViewItem>();
+
+						//Check whether the necessary operands for this operations are given
+						if(result.Count() < curr.Arity)
+							return null;
+
+						//Get the operands
+						for(var i = 0; i < curr.Arity; i++)
+							operands.Push(result.Pop());
+
+						//Add the children
+						switch(curr.Arity)
+						{
+							case 2:
+								if (Token.PolyadicFunctions.Contains(curr.Content))
+									operands.ToList().ForEach(o => newitem.Items.Add(o));
+								else
+								{
+									newitem.Items.Add(operands.Pop());
+									newitem.Items.Add(operands.Pop());
+								}
+								break;
+							case 1:
+								newitem.Items.Add(operands.Pop());
+								break;
+							default:
+								operands.ToList().ForEach(o => newitem.Items.Add(o));
+								break;
+						}
+
+						//Push
+						result.Push(newitem);
+						break;
+
+					default:
+						//Invalid token, postfix notation doesn't support parenthesis nor argument seperators
+						return null;
+				}
+			}
+
+			//Result stack has to be reduced to one token
+			return result.Count() == 1 ? result.Pop() : null;
+
+		}
 
 	}
 }
