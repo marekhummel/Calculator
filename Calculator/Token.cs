@@ -27,7 +27,7 @@ namespace Calculator
 			var polyadics = "gcd( lcm( max( min(".Split(' ');
 			_functions = "sin( cos( tan( asin( acos( atan( abs( sqrt( log( ln( exp( fact(".Split(' ').Concat(polyadics).ToArray();
 			_constants = "pi e".Split(' ');
-			_operators = "+ - * / % ^".Split(' ');
+			_operators = "+ - * / % ^ !".Split(' ');
 			_seperators = "( ) ,".Split(' ');
 
 			ValidTokens = new[] { _functions, _operators, _seperators, _constants }.SelectMany(tok => tok).ToArray();
@@ -37,6 +37,7 @@ namespace Calculator
 			_precedence = new Dictionary<string, int>();
 			_precedence.Add("+", 1);
 			_precedence.Add("-", 1);
+			_precedence.Add("!", 2);
 			_precedence.Add("*", 2);
 			_precedence.Add("/", 2);
 			_precedence.Add("%", 2);
@@ -67,6 +68,7 @@ namespace Calculator
 			_associativity = new Dictionary<string, AssociativityType>();
 			_associativity.Add("+", AssociativityType.Left);
 			_associativity.Add("-", AssociativityType.Left);
+			_associativity.Add("!", AssociativityType.None);
 			_associativity.Add("*", AssociativityType.Left);
 			_associativity.Add("/", AssociativityType.Left);
 			_associativity.Add("%", AssociativityType.Left);
@@ -95,6 +97,7 @@ namespace Calculator
 			_arity = new Dictionary<string, int>();
 			_arity.Add("+", 2);
 			_arity.Add("-", 2);
+			_arity.Add("!", 1);
 			_arity.Add("*", 2);
 			_arity.Add("/", 2);
 			_arity.Add("%", 2);
@@ -145,7 +148,7 @@ namespace Calculator
 		public Token(string c)
 		{
 			//Content
-			Content = c;
+			Content = c.ToLower();
 
 
 			//Type
@@ -153,10 +156,7 @@ namespace Calculator
 			if(double.TryParse(c, out n))
 				Type = TokenType.Number;
 			else if (_constants.Contains(c))
-			{
-				Type = TokenType.Number;
-				Content = (c == "pi" ? Math.PI.ToString(CultureInfo.InvariantCulture) : Math.E.ToString(CultureInfo.InvariantCulture));
-			}
+				Type = TokenType.Constant;
 			else if(_operators.Contains(c))
 				Type = TokenType.Operator;
 			else if(_functions.Contains(c))
@@ -179,7 +179,7 @@ namespace Calculator
 
 
 			//Precendence and associativity
-			if (Type == TokenType.Number)
+			if (Type == TokenType.Number || Type == TokenType.Constant)
 			{
 				Precedence = 99;
 				Associativity = AssociativityType.None;
@@ -198,6 +198,7 @@ namespace Calculator
 		public enum TokenType
 		{
 			Number,
+			Constant,
 			Operator,
 			Function,
 			ArgumentSeperator,

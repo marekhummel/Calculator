@@ -20,7 +20,7 @@ namespace Calculator
 			Func<double, int?> tryParse = d =>
 			{
 				int i;
-				if(!int.TryParse(d.ToString(CultureInfo.InvariantCulture), out i))
+				if (!int.TryParse(d.ToString(CultureInfo.InvariantCulture), out i))
 					return null;
 				return i;
 			};
@@ -40,7 +40,7 @@ namespace Calculator
 			{
 				var i = tryParse(a);
 				var j = tryParse(b);
-				if(i == null || j == null)
+				if (i == null || j == null)
 					return double.NaN;
 
 				return ((double)i * (double)j) / gcd((double)i, (double)j);
@@ -66,7 +66,7 @@ namespace Calculator
 			_binaryOperations.Add("log(", (a, b) => Math.Log(b, a));
 
 			_unaryOperations = new Dictionary<string, Func<double, double>>();
-			_unaryOperations.Add("-", a => -a);
+			_unaryOperations.Add("!", a => -a);
 			_unaryOperations.Add("sin(", Math.Sin);
 			_unaryOperations.Add("cos(", Math.Cos);
 			_unaryOperations.Add("tan(", Math.Tan);
@@ -84,11 +84,16 @@ namespace Calculator
 			_polyadicFunctions.Add("lcm(", ops => ops.Aggregate((a, b) => lcm(a, b)));
 			_polyadicFunctions.Add("max(", ops => ops.Aggregate(Math.Max));
 			_polyadicFunctions.Add("min(", ops => ops.Aggregate(Math.Min));
+
+			_constants = new Dictionary<string, double>();
+			_constants.Add("pi", Math.PI);
+			_constants.Add("e", Math.E);
 		}
 
 		private static readonly Dictionary<string, Func<double, double, double>> _binaryOperations;
 		private static readonly Dictionary<string, Func<double, double>> _unaryOperations;
-		private static readonly Dictionary<string, Func<IEnumerable<double>, double>>_polyadicFunctions; 
+		private static readonly Dictionary<string, Func<IEnumerable<double>, double>> _polyadicFunctions;
+		private static readonly Dictionary<string, double> _constants;
 
 
 
@@ -108,6 +113,8 @@ namespace Calculator
 			var tokens = matches.Cast<Match>().Select(m => new Token(m.ToString())).ToList();
 
 
+
+
 			//Set arities for polyadic functions
 			foreach (var tk in tokens.Where(t => Token.PolyadicFunctions.Contains(t.Content)))
 			{
@@ -115,22 +122,70 @@ namespace Calculator
 
 				var openparenthesis = 1;
 				var argsCount = 0;
-				var args = tokens.Skip(index + 1).TakeWhile(t =>
+				foreach (var t in tokens.Skip(index + 1))
 				{
-					if (t.Type == Token.TokenType.Function)
-						openparenthesis++;
-					else if (t.Type == Token.TokenType.RightParathesis)
-						openparenthesis--;
+					switch (t.Type)
+					{
+						case Token.TokenType.Function:
+							openparenthesis++;
+							break;
+						case Token.TokenType.RightParathesis:
+							openparenthesis--;
+							break;
+					}
 
 					if ((t.Type == Token.TokenType.Number || t.Type == Token.TokenType.RightParathesis) && openparenthesis == 1)
 						argsCount++;
 
-					return openparenthesis != 0;
-				}).ToList();
+					if (openparenthesis == 0)
+						break;
+				}
 
 				tokens[index].Arity = argsCount;
 			}
 
+
+
+			//Special handling of implicit multiply operator and unary minus operator
+			var pairs = tokens.Take(tokens.Count() - 1).Select((tk, i) => new[] { tk, tokens[i + 1] }).ToList();
+
+			//Insert implicit multiply operators	
+			var pindex = 1;
+			foreach (var p in pairs)
+			{
+				Token left = p[0], right = p[1];
+
+				if (left.Type == Token.TokenType.Number && right.Type == Token.TokenType.Constant)
+					tokens.Insert(pindex, new Token("*"));
+				else if (left.Type == Token.TokenType.RightParathesis && right.Type == Token.TokenType.LeftParenthesis)
+					tokens.Insert(pindex, new Token("*"));
+
+				pindex++;
+			}
+
+			//Detect unary minus
+			pindex = 0;
+			foreach (var p in pairs)
+			{
+				Token left = p[0], right = p[1];
+
+				if (pindex == 0 && left.Content == "-")
+					tokens[0] = new Token("!");
+				else if (left.Type == Token.TokenType.Operator && right.Type == Token.TokenType.Operator)
+				{
+					if (right.Content == "-")
+						tokens[pindex + 1] = new Token("!");
+				}
+				else if (left.Type == Token.TokenType.Operator && right.Type == Token.TokenType.LeftParenthesis)
+				{
+					if (left.Content == "-")
+						tokens[pindex] = new Token("!");
+				}
+
+
+
+				pindex++;
+			}
 
 			return tokens;
 		}
@@ -146,30 +201,32 @@ namespace Calculator
 			var stack = new Stack<Token>();
 			var res = new List<Token>();
 
-			while(tokens.Any())
+			while (tokens.Any())
 			{
 				var curr = tokens.Dequeue();
 
-				switch(curr.Type)
+				switch (curr.Type)
 				{
 					case Token.TokenType.Number:
+					case Token.TokenType.Constant:
 						res.Add(curr);
 						break;
+
 
 					case Token.TokenType.Function:
 						stack.Push(curr);
 						break;
 
 					case Token.TokenType.ArgumentSeperator:
-						while(true)
+						while (true)
 						{
 							//Wrongly positioned seperator or missing left parenthesis
-							if(!stack.Any())
+							if (!stack.Any())
 								return false;
 
 							var top = stack.Peek();
 
-							if(top.Type == Token.TokenType.Function)
+							if (top.Type == Token.TokenType.Function)
 								break;
 
 							res.Add(stack.Pop());
@@ -178,12 +235,12 @@ namespace Calculator
 
 					case Token.TokenType.Operator:
 
-						if(curr.Associativity == Token.AssociativityType.Left)
+						if (curr.Associativity == Token.AssociativityType.Left)
 						{
-							while(stack.Any())
+							while (stack.Any())
 							{
 								var top = stack.Peek();
-								if(top.Type == Token.TokenType.Operator && curr.Precedence <= top.Precedence)
+								if (top.Type == Token.TokenType.Operator && curr.Precedence <= top.Precedence)
 									res.Add(stack.Pop());
 								else
 									break;
@@ -197,18 +254,18 @@ namespace Calculator
 						break;
 
 					case Token.TokenType.RightParathesis:
-						while(true)
+						while (true)
 						{
 							//Missing left parenthesis
-							if(!stack.Any())
+							if (!stack.Any())
 								return false;
 
 							var top = stack.Pop();
 
-							if(top.Type == Token.TokenType.LeftParenthesis)
+							if (top.Type == Token.TokenType.LeftParenthesis)
 								break;
 
-							if(top.Type == Token.TokenType.Function)
+							if (top.Type == Token.TokenType.Function)
 							{
 								res.Add(top);
 								break;
@@ -221,12 +278,12 @@ namespace Calculator
 			}
 
 			//Flush the stack to the result
-			while(stack.Count > 0)
+			while (stack.Count > 0)
 			{
 				var top = stack.Pop();
 
 				//More left parentheses than right ones
-				if(top.Type == Token.TokenType.LeftParenthesis || top.Type == Token.TokenType.Function)
+				if (top.Type == Token.TokenType.LeftParenthesis || top.Type == Token.TokenType.Function)
 					return false;
 
 				res.Add(top);
@@ -261,22 +318,26 @@ namespace Calculator
 			var result = new Stack<double>();
 
 			//Iterate through all tokens
-			while(tokens.Any())
+			while (tokens.Any())
 			{
 				//Get the current token
 				var curr = tokens.Dequeue();
 
 				//Act based on the token type
 				double value;
-				switch(curr.Type)
+				switch (curr.Type)
 				{
 					case Token.TokenType.Number:
 						result.Push(double.Parse(curr.Content, CultureInfo.InvariantCulture));
 						break;
 
+					case Token.TokenType.Constant:
+						result.Push(_constants[curr.Content]);
+						break;
+
 					case Token.TokenType.Operator:
 
-						if(result.Count() < curr.Arity)
+						if (result.Count() < curr.Arity)
 							return double.NaN;
 
 						//Calculate
@@ -302,16 +363,16 @@ namespace Calculator
 						var operands = new Stack<double>();
 
 						//Check whether the necessary operands for this operations are given
-						if(result.Count() < curr.Arity)
+						if (result.Count() < curr.Arity)
 							return double.NaN;
 
 						//Get the operands
-						for(var i = 0; i < curr.Arity; i++)
+						for (var i = 0; i < curr.Arity; i++)
 							operands.Push(result.Pop());
 
 						//Calculate
 						value = 0d;
-						switch(curr.Arity)
+						switch (curr.Arity)
 						{
 							case 2:
 								if (Token.PolyadicFunctions.Contains(curr.Content))
@@ -366,26 +427,27 @@ namespace Calculator
 			var result = new Stack<TreeViewItem>();
 
 			//Iterate through all tokens
-			while(tokens.Any())
+			while (tokens.Any())
 			{
 				//Get the current token
 				var curr = tokens.Dequeue();
 
 				//Act based on the token type
-				var newitem = new TreeViewItem { Header = curr.Content, IsExpanded = true};
-				switch(curr.Type)
+				var newitem = new TreeViewItem { Header = curr.Content, IsExpanded = true };
+				switch (curr.Type)
 				{
 					case Token.TokenType.Number:
+					case Token.TokenType.Constant:
 						result.Push(newitem);
 						break;
 
 					case Token.TokenType.Operator:
 
-						if(result.Count() < curr.Arity)
+						if (result.Count() < curr.Arity)
 							return null;
 
 						//Add children
-						switch(curr.Arity)
+						switch (curr.Arity)
 						{
 							case 2:
 								newitem.Items.Add(result.Pop());
@@ -406,15 +468,15 @@ namespace Calculator
 						var operands = new Stack<TreeViewItem>();
 
 						//Check whether the necessary operands for this operations are given
-						if(result.Count() < curr.Arity)
+						if (result.Count() < curr.Arity)
 							return null;
 
 						//Get the operands
-						for(var i = 0; i < curr.Arity; i++)
+						for (var i = 0; i < curr.Arity; i++)
 							operands.Push(result.Pop());
 
 						//Add the children
-						switch(curr.Arity)
+						switch (curr.Arity)
 						{
 							case 2:
 								if (Token.PolyadicFunctions.Contains(curr.Content))
