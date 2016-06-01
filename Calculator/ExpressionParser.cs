@@ -114,7 +114,7 @@ namespace Calculator
 
 
 
-
+			//Additional processing
 			//Set arities for polyadic functions
 			foreach (var tk in tokens.Where(t => Token.PolyadicFunctions.Contains(t.Content)))
 			{
@@ -126,15 +126,15 @@ namespace Calculator
 				{
 					switch (t.Type)
 					{
-						case Token.TokenType.Function:
+						case TokenType.Function:
 							openparenthesis++;
 							break;
-						case Token.TokenType.RightParathesis:
+						case TokenType.RightParathesis:
 							openparenthesis--;
 							break;
 					}
 
-					if ((t.Type == Token.TokenType.Number || t.Type == Token.TokenType.RightParathesis) && openparenthesis == 1)
+					if ((t.Type == TokenType.Number || t.Type == TokenType.RightParathesis) && openparenthesis == 1)
 						argsCount++;
 
 					if (openparenthesis == 0)
@@ -146,7 +146,7 @@ namespace Calculator
 
 
 
-			//Special handling of implicit multiply operator and unary minus operator
+			//Special handling of implicit multiply operator and unary minus/plus operator
 			var pairs = tokens.Take(tokens.Count() - 1).Select((tk, i) => new[] { tk, tokens[i + 1] }).ToList();
 
 			//Insert implicit multiply operators	
@@ -155,15 +155,15 @@ namespace Calculator
 			{
 				Token left = p[0], right = p[1];
 
-				if (left.Type == Token.TokenType.Number && right.Type == Token.TokenType.Constant)
+				if (left.Type == TokenType.Number && right.Type == TokenType.Constant)
 					tokens.Insert(pindex, new Token("*"));
-				else if (left.Type == Token.TokenType.RightParathesis && right.Type == Token.TokenType.LeftParenthesis)
+				else if (left.Type == TokenType.RightParathesis && right.Type == TokenType.LeftParenthesis)
 					tokens.Insert(pindex, new Token("*"));
 
 				pindex++;
 			}
 
-			//Detect unary minus
+			//Detect unary minus/plus
 			pindex = 0;
 			foreach (var p in pairs)
 			{
@@ -171,15 +171,21 @@ namespace Calculator
 
 				if (pindex == 0 && left.Content == "-")
 					tokens[0] = new Token("!");
-				else if (left.Type == Token.TokenType.Operator && right.Type == Token.TokenType.Operator)
+				else if (pindex == 0 && left.Content == "+")
+					tokens.RemoveAt(0);
+				else if (left.Type == TokenType.Operator && right.Type == TokenType.Operator)
 				{
 					if (right.Content == "-")
 						tokens[pindex + 1] = new Token("!");
+					else if (right.Content == "+")
+						tokens.RemoveAt(pindex + 1);
 				}
-				else if (left.Type == Token.TokenType.Operator && right.Type == Token.TokenType.LeftParenthesis)
+				else if (left.Type == TokenType.LeftParenthesis && right.Type == TokenType.Operator)
 				{
-					if (left.Content == "-")
-						tokens[pindex] = new Token("!");
+					if (right.Content == "-")
+						tokens[pindex + 1] = new Token("!");
+					else if (right.Content == "+")
+						tokens.RemoveAt(pindex + 1);
 				}
 
 
@@ -207,17 +213,17 @@ namespace Calculator
 
 				switch (curr.Type)
 				{
-					case Token.TokenType.Number:
-					case Token.TokenType.Constant:
+					case TokenType.Number:
+					case TokenType.Constant:
 						res.Add(curr);
 						break;
 
 
-					case Token.TokenType.Function:
+					case TokenType.Function:
 						stack.Push(curr);
 						break;
 
-					case Token.TokenType.ArgumentSeperator:
+					case TokenType.ArgumentSeperator:
 						while (true)
 						{
 							//Wrongly positioned seperator or missing left parenthesis
@@ -226,21 +232,20 @@ namespace Calculator
 
 							var top = stack.Peek();
 
-							if (top.Type == Token.TokenType.Function)
+							if (top.Type == TokenType.Function)
 								break;
 
 							res.Add(stack.Pop());
 						}
 						break;
 
-					case Token.TokenType.Operator:
-
-						if (curr.Associativity == Token.AssociativityType.Left)
+					case TokenType.Operator:
+						if (curr.Associativity == AssociativityType.Left)
 						{
 							while (stack.Any())
 							{
 								var top = stack.Peek();
-								if (top.Type == Token.TokenType.Operator && curr.Precedence <= top.Precedence)
+								if (top.Type == TokenType.Operator && curr.Precedence <= top.Precedence)
 									res.Add(stack.Pop());
 								else
 									break;
@@ -249,11 +254,11 @@ namespace Calculator
 						stack.Push(curr);
 						break;
 
-					case Token.TokenType.LeftParenthesis:
+					case TokenType.LeftParenthesis:
 						stack.Push(curr);
 						break;
 
-					case Token.TokenType.RightParathesis:
+					case TokenType.RightParathesis:
 						while (true)
 						{
 							//Missing left parenthesis
@@ -262,10 +267,10 @@ namespace Calculator
 
 							var top = stack.Pop();
 
-							if (top.Type == Token.TokenType.LeftParenthesis)
+							if (top.Type == TokenType.LeftParenthesis)
 								break;
 
-							if (top.Type == Token.TokenType.Function)
+							if (top.Type == TokenType.Function)
 							{
 								res.Add(top);
 								break;
@@ -283,7 +288,7 @@ namespace Calculator
 				var top = stack.Pop();
 
 				//More left parentheses than right ones
-				if (top.Type == Token.TokenType.LeftParenthesis || top.Type == Token.TokenType.Function)
+				if (top.Type == TokenType.LeftParenthesis || top.Type == TokenType.Function)
 					return false;
 
 				res.Add(top);
@@ -327,16 +332,15 @@ namespace Calculator
 				double value;
 				switch (curr.Type)
 				{
-					case Token.TokenType.Number:
+					case TokenType.Number:
 						result.Push(double.Parse(curr.Content, CultureInfo.InvariantCulture));
 						break;
 
-					case Token.TokenType.Constant:
+					case TokenType.Constant:
 						result.Push(_constants[curr.Content]);
 						break;
 
-					case Token.TokenType.Operator:
-
+					case TokenType.Operator:
 						if (result.Count() < curr.Arity)
 							return double.NaN;
 
@@ -359,7 +363,7 @@ namespace Calculator
 						result.Push(value);
 						break;
 
-					case Token.TokenType.Function:
+					case TokenType.Function:
 						var operands = new Stack<double>();
 
 						//Check whether the necessary operands for this operations are given
@@ -393,7 +397,7 @@ namespace Calculator
 						break;
 
 					default:
-						//Invalid token, postfix notation doesn't support parenthesis nor argument seperators
+						//Invalid token, postfix notation neither supports parenthesis nor argument seperators
 						return double.NaN;
 				}
 			}
@@ -436,12 +440,12 @@ namespace Calculator
 				var newitem = new TreeViewItem { Header = curr.Content, IsExpanded = true };
 				switch (curr.Type)
 				{
-					case Token.TokenType.Number:
-					case Token.TokenType.Constant:
+					case TokenType.Number:
+					case TokenType.Constant:
 						result.Push(newitem);
 						break;
 
-					case Token.TokenType.Operator:
+					case TokenType.Operator:
 
 						if (result.Count() < curr.Arity)
 							return null;
@@ -464,7 +468,7 @@ namespace Calculator
 
 						break;
 
-					case Token.TokenType.Function:
+					case TokenType.Function:
 						var operands = new Stack<TreeViewItem>();
 
 						//Check whether the necessary operands for this operations are given
