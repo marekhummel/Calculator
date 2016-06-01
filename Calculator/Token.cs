@@ -25,7 +25,7 @@ namespace Calculator
 
 			//Define the valid / known tokens
 			var polyadics = "gcd( lcm( max( min(".Split(' ');
-			_functions = "sin( cos( tan( asin( acos( atan( abs( sqrt( log( ln( exp( fact(".Split(' ').Concat(polyadics).ToArray();
+			_functions = "sin( cos( tan( asin( acos( atan( abs( sqrt( log( ln( exp( fact( ncr( npr(".Split(' ').Concat(polyadics).ToArray();
 			_constants = "pi e".Split(' ');
 			_operators = "+ - * / % ^ !".Split(' ');
 			_seperators = "( ) ,".Split(' ');
@@ -57,6 +57,8 @@ namespace Calculator
 			_precedence.Add("abs(", 4);
 			_precedence.Add("exp(", 4);
 			_precedence.Add("fact(", 4);
+			_precedence.Add("ncr(", 4);
+			_precedence.Add("npr(", 4);
 			_precedence.Add("gcd(", 4);
 			_precedence.Add("lcm(", 4);
 			_precedence.Add("max(", 4);
@@ -88,6 +90,8 @@ namespace Calculator
 			_associativity.Add("abs(", AssociativityType.None);
 			_associativity.Add("exp(", AssociativityType.None);
 			_associativity.Add("fact(", AssociativityType.None);
+			_associativity.Add("ncr(", AssociativityType.None);
+			_associativity.Add("npr(", AssociativityType.None);
 			_associativity.Add("gcd(", AssociativityType.None);
 			_associativity.Add("lcm(", AssociativityType.None);
 			_associativity.Add("max(", AssociativityType.None);
@@ -117,6 +121,8 @@ namespace Calculator
 			_arity.Add("abs(", 1);
 			_arity.Add("exp(", 1);
 			_arity.Add("fact(", 1);
+			_arity.Add("ncr(", 2);
+			_arity.Add("npr(", 2);
 			_arity.Add("gcd(", 0);
 			_arity.Add("lcm(", 0);
 			_arity.Add("max(", 0);
@@ -148,7 +154,8 @@ namespace Calculator
 		public Token(string c)
 		{
 			//Content
-			Content = c.ToLower();
+			c = c.ToLower();
+			Content = c;
 
 
 			//Type

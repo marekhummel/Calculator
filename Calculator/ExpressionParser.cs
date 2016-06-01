@@ -49,7 +49,7 @@ namespace Calculator
 			Func<double, double> fact = a =>
 			{
 				var i = tryParse(a);
-				return i == null ? double.NaN : Enumerable.Range(1, (int)i).Aggregate(1, (x, y) => x * y);
+				return i == null || (int)i < 0 ? double.NaN : Enumerable.Range(1, (int)i).Aggregate(1, (x, y) => x * y);
 			};
 
 
@@ -64,6 +64,8 @@ namespace Calculator
 			_binaryOperations.Add("%", (a, b) => a % b);
 			_binaryOperations.Add("^", Math.Pow);
 			_binaryOperations.Add("log(", (a, b) => Math.Log(b, a));
+			_binaryOperations.Add("ncr(", (a, b) => fact(a) / (fact(b) * fact(a-b)));
+			_binaryOperations.Add("npr(", (a, b) => fact(a) / (fact(b)));
 
 			_unaryOperations = new Dictionary<string, Func<double, double>>();
 			_unaryOperations.Add("!", a => -a);

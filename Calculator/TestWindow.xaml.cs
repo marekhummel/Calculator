@@ -9,9 +9,9 @@ namespace Calculator
 	/// <summary>
 	/// Interaction logic for Window1.xaml
 	/// </summary>
-	public partial class MainWindow : Window
+	public partial class TestWindow : Window
 	{
-		public MainWindow()
+		public TestWindow()
 		{
 			InitializeComponent();
 		}
@@ -52,6 +52,7 @@ namespace Calculator
 			tbPostfix.Text = "";
 			tbResult.Text = "";
 			lbTokens.Items.Clear();
+			tvExptree.Items.Clear();
 		}
 	}
 }
