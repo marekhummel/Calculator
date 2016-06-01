@@ -104,7 +104,7 @@ namespace Calculator
 		public static List<Token> Tokenize(string infix)
 		{
 			//Define the pattern
-			const string patternNums = @"\d*\.?\d+";
+			const string patternNums = @"\d*\.?\d+(E[+-]?\d*)?";
 			var patternOps = string.Join("|", Token.ValidTokens.Select(Regex.Escape));
 			var pattern = patternNums + "|" + patternOps;
 
