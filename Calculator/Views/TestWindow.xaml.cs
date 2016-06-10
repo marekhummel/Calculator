@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows;
 
 
-namespace Calculator
+namespace Calculator.Views
 {
 	/// <summary>
 	/// Interaction logic for Window1.xaml

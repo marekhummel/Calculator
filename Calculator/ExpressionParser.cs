@@ -115,7 +115,6 @@ namespace Calculator
 			var tokens = matches.Cast<Match>().Select(m => new Token(m.ToString())).ToList();
 
 
-
 			//Additional processing
 			//Set arities for polyadic functions
 			foreach (var tk in tokens.Where(t => Token.PolyadicFunctions.Contains(t.Content)))
@@ -219,7 +218,6 @@ namespace Calculator
 					case TokenType.Constant:
 						res.Add(curr);
 						break;
-
 
 					case TokenType.Function:
 						stack.Push(curr);
@@ -377,7 +375,6 @@ namespace Calculator
 							operands.Push(result.Pop());
 
 						//Calculate
-						value = 0d;
 						switch (curr.Arity)
 						{
 							case 2:
