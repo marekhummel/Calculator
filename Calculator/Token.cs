@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Calculator
 {
-	class Token
+	public class Token
 	{
 
 
@@ -25,8 +25,8 @@ namespace Calculator
 
 			//Define the valid / known tokens
 			var polyadics = "gcd( lcm( max( min(".Split(' ');
-			_functions = "sin( cos( tan( asin( acos( atan( abs( sqrt( log( ln( exp( fact( ncr( npr(".Split(' ').Concat(polyadics).ToArray();
-			_constants = "pi e".Split(' ');
+			_functions = "sin( cos( tan( asin( acos( atan( abs( sqrt( log( ln( exp( fact( ncr( npr( floor( frac(".Split(' ').Concat(polyadics).ToArray();
+			_constants = "pi e ans".Split(' ');
 			_operators = "+ - * / % ^ !".Split(' ');
 			_seperators = "( ) ,".Split(' ');
 
@@ -63,6 +63,8 @@ namespace Calculator
 			_precedence.Add("lcm(", 4);
 			_precedence.Add("max(", 4);
 			_precedence.Add("min(", 4);
+			_precedence.Add("floor(", 4);
+			_precedence.Add("frac(", 4);
 
 
 
@@ -96,6 +98,8 @@ namespace Calculator
 			_associativity.Add("lcm(", AssociativityType.None);
 			_associativity.Add("max(", AssociativityType.None);
 			_associativity.Add("min(", AssociativityType.None);
+			_associativity.Add("floor(", AssociativityType.None);
+			_associativity.Add("frac(", AssociativityType.None);
 
 			//Arities
 			_arity = new Dictionary<string, int>();
@@ -127,6 +131,8 @@ namespace Calculator
 			_arity.Add("lcm(", 0);
 			_arity.Add("max(", 0);
 			_arity.Add("min(", 0);
+			_arity.Add("floor(", 1);
+			_arity.Add("frac(", 1);
 
 			//Set initialized flag to true
 			_initialized = true;

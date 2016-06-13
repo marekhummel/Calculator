@@ -1,51 +1,86 @@
-﻿<Window x:Class="Calculator.Views.MainWindow"
-		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:vms="clr-namespace:Calculator.ViewModels"
-		mc:Ignorable="d"
-		Title="Calculator"
-		Height="321"
-		Width="523"
-		ResizeMode="CanMinimize"
-		WindowStartupLocation="CenterScreen">
+﻿<Window x:Class="Calculator.Views.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:vms="clr-namespace:Calculator.ViewModels" xmlns:convs="clr-namespace:Calculator.Converters" mc:Ignorable="d" Title="Calculator" Height="321" Width="523" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Background="#FFDFDFDF">
 	<Window.DataContext>
 		<vms:MainViewModel />
 	</Window.DataContext>
 	<Window.Resources>
-
-		<Style TargetType="{x:Type Button}">
-			<Setter Property="Background"
-					Value="#DDDDDD" />
-			<Setter Property="Margin"
-					Value="1" />
+		<Style x:Key="BaseButtonStyle" TargetType="{x:Type Button}">
+			<Setter Property="Margin" Value="0,0,1,1" />
+			<Setter Property="FontFamily" Value="Century Gothic" />
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type Button}">
 						<Border Background="{TemplateBinding Background}">
-							<ContentPresenter HorizontalAlignment="Center"
-											  VerticalAlignment="Center" />
+							<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
 						</Border>
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
+		</Style>
+
+
+		<Style x:Key="DigitButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButtonStyle}">
+			<Setter Property="Background" Value="#FFBEBEBE" />
+			<Setter Property="FontSize" Value="14" />
+			<Setter Property="FontWeight" Value="ExtraBold" />
 			<Style.Triggers>
-				<Trigger Property="IsMouseOver"
-						 Value="True">
-					<Setter Property="Background"
-							Value="#AAAAAA" />
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="Background" Value="#AAAAAA" />
 				</Trigger>
-				<Trigger Property="IsPressed"
-						 Value="True">
-					<Setter Property="Background"
-							Value="#888888" />
+				<Trigger Property="IsPressed" Value="True">
+					<Setter Property="Background" Value="#888888" />
 				</Trigger>
 			</Style.Triggers>
 		</Style>
 
+		<Style x:Key="OperatorButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButtonStyle}">
+			<Setter Property="Background" Value="#FFBEBEBE" />
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="Background" Value="#FFAAAAAA" />
+				</Trigger>
+				<Trigger Property="IsPressed" Value="True">
+					<Setter Property="Background" Value="#FF888888" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
 
+		<Style x:Key="SpecialButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButtonStyle}">
+			<Setter Property="Background" Value="#FFDD7700" />
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="FontSize" Value="13" />
+			<Setter Property="FontWeight" Value="ExtraBold" />
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="Background" Value="#FFCC6600" />
+				</Trigger>
+				<Trigger Property="IsPressed" Value="True">
+					<Setter Property="Background" Value="#FFBB5500" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
 
+		<Style x:Key="TabControlHeaderButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButtonStyle}">
+			<Setter Property="Background" Value="#FFBEBEBE" />
+			<Setter Property="FontWeight" Value="Bold" />
+		</Style>
+
+		<Style x:Key="AngleUnitButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButtonStyle}">
+			<Setter Property="Background" Value="#FFBEBEBE" />
+			<Setter Property="Foreground" Value="Black" />
+			<Setter Property="FontSize" Value="10" />
+			<Setter Property="Margin" Value="2,0,2,1" />
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="Background" Value="#AAAAAA" />
+				</Trigger>
+				<Trigger Property="IsPressed" Value="True">
+					<Setter Property="Background" Value="#888888" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
+
+		<convs:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+		<convs:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter" />
 	</Window.Resources>
 
 	<!-- Outer grid -->
@@ -57,29 +92,26 @@
 
 
 		<!-- Output -->
-		<Grid>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="2*" />
-				<RowDefinition Height="5*" />
-			</Grid.RowDefinitions>
+		<Border BorderThickness="0,0,0,2" Margin="0,0,0,1"  BorderBrush="#FF555555">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="2*" />
+					<RowDefinition Height="5*" />
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
 
-			<TextBlock Grid.Row="0"
-					   Text="Expression"
-					   TextAlignment="Right"
-					   Margin="0,0,10,0" />
-			<TextBlock Grid.Row="1"
-					   Text="Result"
-					   TextAlignment="Right"
-					   VerticalAlignment="Bottom"
-					   FontSize="36"
-					   FontFamily="Century Gothic"
-					   Margin="0,0,10,0" />
-		</Grid>
+				<TextBlock Name="ExpressionBox" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding Expression}" TextAlignment="Right" FontFamily="Century Gothic" Margin="0,5,10,0" FontSize="13" />
+				<TextBlock Grid.Row="1" Grid.Column="0" Text="=" TextAlignment="Center" VerticalAlignment="Center" FontFamily="Century Gothic" FontSize="36" Margin="10,0,0,0" />
+				<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Result}" TextAlignment="Right" VerticalAlignment="Bottom" FontSize="36" FontFamily="Century Gothic" Margin="0,0,10,0" />
 
+			</Grid>
+		</Border>
 
 		<!-- The main buttons -->
-		<Grid Background="#DDDDDD"
-			  Grid.Row="1">
+		<Grid Grid.Row="1" Grid.ColumnSpan="2">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="*" />
 				<ColumnDefinition Width="*" />
@@ -100,186 +132,126 @@
 				<RowDefinition Height="*" />
 			</Grid.RowDefinitions>
 
+
+
 			<!-- RIGHT MAIN BUTTONS -->
-			<Button Grid.Column="4"
-					Grid.Row="0"
-					Content="π" />
-			<Button Grid.Column="5"
-					Grid.Row="0"
-					Content="&lt;--" />
-			<Button Grid.Column="6"
-					Grid.Row="0"
-					Content="--&gt;" />
-			<Button Grid.Column="7"
-					Grid.Row="0"
-					Content="(" />
-			<Button Grid.Column="8"
-					Grid.Row="0"
-					Content=")" />
-			<Button Grid.Column="4"
-					Grid.Row="1"
-					Content="e"
-					FontStyle="Italic" />
-			<Button Grid.Column="5"
-					Grid.Row="1"
-					Content="," />
-			<Button Grid.Column="6"
-					Grid.Row="1"
-					Content="E" />
-			<Button Grid.Column="7"
-					Grid.Row="1"
-					Content="^" />
-			<Button Grid.Column="8"
-					Grid.Row="1"
-					Content="%" />
-			<Button Grid.Column="4"
-					Grid.Row="2"
-					Content="7" />
-			<Button Grid.Column="5"
-					Grid.Row="2"
-					Content="8" />
-			<Button Grid.Column="6"
-					Grid.Row="2"
-					Content="9" />
-			<Button Grid.Column="7"
-					Grid.Row="2"
-					Content="/" />
-			<Button Grid.Column="8"
-					Grid.Row="2"
-					Content="ANS" />
-			<Button Grid.Column="4"
-					Grid.Row="3"
-					Content="4" />
-			<Button Grid.Column="5"
-					Grid.Row="3"
-					Content="5" />
-			<Button Grid.Column="6"
-					Grid.Row="3"
-					Content="6" />
-			<Button Grid.Column="7"
-					Grid.Row="3"
-					Content="*" />
-			<Button Grid.Column="8"
-					Grid.Row="3"
-					Content="DEL" />
-			<Button Grid.Column="4"
-					Grid.Row="4"
-					Content="1" />
-			<Button Grid.Column="5"
-					Grid.Row="4"
-					Content="2" />
-			<Button Grid.Column="6"
-					Grid.Row="4"
-					Content="3" />
-			<Button Grid.Column="7"
-					Grid.Row="4"
-					Content="-" />
-			<Button Grid.Column="8"
-					Grid.Row="4"
-					Content="="
-					Grid.RowSpan="2" />
-			<Button Grid.Column="4"
-					Grid.Row="5"
-					Content="0" />
-			<Button Grid.Column="5"
-					Grid.Row="5"
-					Content="." />
-			<Button Grid.Column="6"
-					Grid.Row="5"
-					Content="(-)" />
-			<Button Grid.Column="7"
-					Grid.Row="5"
-					Content="+" />
+			<Button Grid.Column="4" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content="π" Command="{Binding InsertEntry}" CommandParameter="pi" />
+			<Button Grid.Column="5" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content="&lt;--" />
+			<Button Grid.Column="6" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content="-->" />
+			<Button Grid.Column="7" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content="(" Command="{Binding InsertEntry}" CommandParameter="(" />
+			<Button Grid.Column="8" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content=")" Command="{Binding InsertEntry}" CommandParameter=")" />
+			<Button Grid.Column="4" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="e" Command="{Binding InsertEntry}" CommandParameter="e" FontStyle="Italic" />
+			<Button Grid.Column="5" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="," Command="{Binding InsertEntry}" CommandParameter="," />
+			<Button Grid.Column="6" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="E" Command="{Binding InsertEntry}" CommandParameter="E" />
+			<Button Grid.Column="7" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="^" Command="{Binding InsertEntry}" CommandParameter="^" />
+			<Button Grid.Column="8" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="%" Command="{Binding InsertEntry}" CommandParameter="%" />
+			<Button Grid.Column="4" Grid.Row="2" Style="{StaticResource DigitButtonStyle}" Content="7" Command="{Binding InsertEntry}" CommandParameter="7" />
+			<Button Grid.Column="5" Grid.Row="2" Style="{StaticResource DigitButtonStyle}" Content="8" Command="{Binding InsertEntry}" CommandParameter="8" />
+			<Button Grid.Column="6" Grid.Row="2" Style="{StaticResource DigitButtonStyle}" Content="9" Command="{Binding InsertEntry}" CommandParameter="9" />
+			<Button Grid.Column="7" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="/" Command="{Binding InsertEntry}" CommandParameter="/" />
+			<Button Grid.Column="8" Grid.Row="2" Style="{StaticResource SpecialButtonStyle}" Content="ANS" Command="{Binding InsertEntry}" CommandParameter="ANS" />
+			<Button Grid.Column="4" Grid.Row="3" Style="{StaticResource DigitButtonStyle}" Content="4" Command="{Binding InsertEntry}" CommandParameter="4" />
+			<Button Grid.Column="5" Grid.Row="3" Style="{StaticResource DigitButtonStyle}" Content="5" Command="{Binding InsertEntry}" CommandParameter="5" />
+			<Button Grid.Column="6" Grid.Row="3" Style="{StaticResource DigitButtonStyle}" Content="6" Command="{Binding InsertEntry}" CommandParameter="6" />
+			<Button Grid.Column="7" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="*" Command="{Binding InsertEntry}" CommandParameter="*" />
+			<Button Grid.Column="8" Grid.Row="3" Style="{StaticResource SpecialButtonStyle}" Content="DEL" Command="{Binding ClearEntry}" />
+			<Button Grid.Column="4" Grid.Row="4" Style="{StaticResource DigitButtonStyle}" Content="1" Command="{Binding InsertEntry}" CommandParameter="1" />
+			<Button Grid.Column="5" Grid.Row="4" Style="{StaticResource DigitButtonStyle}" Content="2" Command="{Binding InsertEntry}" CommandParameter="2" />
+			<Button Grid.Column="6" Grid.Row="4" Style="{StaticResource DigitButtonStyle}" Content="3" Command="{Binding InsertEntry}" CommandParameter="3" />
+			<Button Grid.Column="7" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="-" Command="{Binding InsertEntry}" CommandParameter="-" />
+			<Button Grid.Column="8" Grid.Row="4" Style="{StaticResource SpecialButtonStyle}" Content="=" Grid.RowSpan="2" Command="{Binding Evaluate}" />
+			<Button Grid.Column="4" Grid.Row="5" Style="{StaticResource DigitButtonStyle}" Content="0" Command="{Binding InsertEntry}" CommandParameter="0" />
+			<Button Grid.Column="5" Grid.Row="5" Style="{StaticResource DigitButtonStyle}" Content="." Command="{Binding InsertEntry}" CommandParameter="." />
+			<Button Grid.Column="6" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="(-)" Command="{Binding InsertEntry}" CommandParameter="-" />
+			<Button Grid.Column="7" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="+" Command="{Binding InsertEntry}" CommandParameter="+" />
 
 
-
-
-
-			<!-- PSEUDO TABCONTROL HEADER -->
-
-			<Grid Grid.Row="1" Grid.Column="0" ColumnSpan="4">
+			<!-- DEG RAD GRAD -->
+			<Grid Grid.Row="0" Grid.Column="0" ColumnSpan="4" Margin="30,5,30,10">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
 
-				<Button Grid.Column="0"
-						Content="CUTS" />
-				<Button Grid.Column="1"
-						Content="UNARY" />
-				<Button Grid.Column="2"
-						Content="POLYADIC" />
+				<Button Grid.Column="0" Style="{StaticResource AngleUnitButtonStyle}" Content="DEG" Command="{Binding ChangeToDegreeUnit}" FontWeight="{Binding IsUnitDegreesUsed, Converter={StaticResource BoolToFontWeightConverter}}" />
+				<Button Grid.Column="1" Style="{StaticResource AngleUnitButtonStyle}" Content="RAD" Command="{Binding ChangeToRadiansUnit}" FontWeight="{Binding IsUnitRadiansUsed, Converter={StaticResource BoolToFontWeightConverter}}"/>
+				<Button Grid.Column="2" Style="{StaticResource AngleUnitButtonStyle}" Content="GRAD" Command="{Binding ChangeToGradUnit}" FontWeight="{Binding IsUnitGradUsed, Converter={StaticResource BoolToFontWeightConverter}}" />
+			</Grid>
+
+
+			<!-- PSEUDO TABCONTROL HEADER -->
+			<Grid Grid.Row="1" Grid.Column="0" ColumnSpan="4">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+
+				<Button Grid.Column="0" Style="{StaticResource TabControlHeaderButtonStyle}" Content="UNARY" Command="{Binding ChangeToUnaryPage}" />
+				<Button Grid.Column="1" Style="{StaticResource TabControlHeaderButtonStyle}" Content="POLYADIC" Command="{Binding ChangeToPolyadicPage}" />
 			</Grid>
 
 
 			<!-- UNARY BUTTONS -->
-			<Button Grid.Column="0"
-					Grid.Row="2"
-					Content="sin" />
-			<Button Grid.Column="1"
-					Grid.Row="2"
-					Content="cos" />
-			<Button Grid.Column="2"
-					Grid.Row="2"
-					Content="tan" />
-			<Button Grid.Column="0"
-					Grid.Row="3"
-					Content="asin" />
-			<Button Grid.Column="1"
-					Grid.Row="3"
-					Content="acos" />
-			<Button Grid.Column="2"
-					Grid.Row="3"
-					Content="atan" />
-			<Button Grid.Column="0"
-					Grid.Row="4"
-					Content="abs" />
-			<Button Grid.Column="1"
-					Grid.Row="4"
-					Content="floor" />
-			<Button Grid.Column="2"
-					Grid.Row="4"
-					Content="frac" />
-			<Button Grid.Column="0"
-					Grid.Row="5"
-					Content="sqrt" />
-			<Button Grid.Column="1"
-					Grid.Row="5"
-					Content="fact" />
-			<Button Grid.Column="2"
-					Grid.Row="5"
-					Content="exp" />
-			<Button Grid.Column="3"
-					Grid.Row="5"
-					Content="ln" />
+			<Button Grid.Column="0" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="sin" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="sin(" />
+			<Button Grid.Column="1" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="cos" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="cos(" />
+			<Button Grid.Column="2" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="tan" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="tan(" />
+			<Button Grid.Column="0" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="asin" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="asin(" />
+			<Button Grid.Column="1" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="acos" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="acos(" />
+			<Button Grid.Column="2" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="atan" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="atan(" />
+			<Button Grid.Column="0" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="abs" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="abs(" />
+			<Button Grid.Column="1" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="floor" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="floor(" />
+			<Button Grid.Column="2" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="frac" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="frac(" />
+			<Button Grid.Column="0" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="sqrt" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="sqrt(" />
+			<Button Grid.Column="1" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="fact" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="fact(" />
+			<Button Grid.Column="2" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="exp" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="exp(" />
+			<Button Grid.Column="3" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="ln" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="ln(" />
 
 			<!-- POLYADIC -->
-			<Button Grid.Column="0"
-					Grid.Row="2"
-					Content="log" />
-			<Button Grid.Column="0"
-					Grid.Row="3"
-					Content="nCr" />
-			<Button Grid.Column="1"
-					Grid.Row="3"
-					Content="nPr" />
-			<Button Grid.Column="0"
-					Grid.Row="4"
-					Content="min" />
-			<Button Grid.Column="1"
-					Grid.Row="4"
-					Content="max" />
-			<Button Grid.Column="0"
-					Grid.Row="5"
-					Content="gcd" />
-			<Button Grid.Column="1"
-					Grid.Row="5"
-					Content="lcm" />
+			<Button Grid.Column="0" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="log" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="log(" />
+			<Button Grid.Column="0" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="nCr" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="nCr(" />
+			<Button Grid.Column="1" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="nPr" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="nPr(" />
+			<Button Grid.Column="0" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="min" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="min(" />
+			<Button Grid.Column="1" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="max" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="max(" />
+			<Button Grid.Column="0" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="gcd" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="gcd(" />
+			<Button Grid.Column="1" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="lcm" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="lcm(" />
 		</Grid>
 
 
 
 	</Grid>
+
+
+
+	<!-- Key bindings-->
+	<Window.InputBindings>
+		<KeyBinding Key="Enter" Command="{Binding Evaluate}" />
+
+		<KeyBinding Key="D0" Command="{Binding InsertEntry}" CommandParameter="0" />
+		<KeyBinding Key="D1" Command="{Binding InsertEntry}" CommandParameter="1" />
+		<KeyBinding Key="D2" Command="{Binding InsertEntry}" CommandParameter="2" />
+		<KeyBinding Key="D3" Command="{Binding InsertEntry}" CommandParameter="3" />
+		<KeyBinding Key="D4" Command="{Binding InsertEntry}" CommandParameter="4" />
+		<KeyBinding Key="D5" Command="{Binding InsertEntry}" CommandParameter="5" />
+		<KeyBinding Key="D6" Command="{Binding InsertEntry}" CommandParameter="6" />
+		<KeyBinding Key="D7" Command="{Binding InsertEntry}" CommandParameter="7" />
+		<KeyBinding Key="D8" Command="{Binding InsertEntry}" CommandParameter="8" />
+		<KeyBinding Key="D9" Command="{Binding InsertEntry}" CommandParameter="9" />
+
+		<KeyBinding Key="OemOpenBrackets" Command="{Binding InsertEntry}" CommandParameter="(" />
+		<KeyBinding Key="OemCloseBrackets" Command="{Binding InsertEntry}" CommandParameter=")" />
+		<KeyBinding Key="OemComma" Command="{Binding InsertEntry}" CommandParameter="," />
+
+		<KeyBinding Key="OemPlus" Command="{Binding InsertEntry}" CommandParameter="+" />
+		<KeyBinding Modifiers="Shift" Key="OemPlus" Command="{Binding InsertEntry}" CommandParameter="*" />
+		<KeyBinding Key="OemMinus" Command="{Binding InsertEntry}" CommandParameter="-" />
+		<KeyBinding Modifiers="Shift" Key="Oem7" Command="{Binding InsertEntry}" CommandParameter="/" />
+
+		<KeyBinding Key="OemPeriod" Command="{Binding InsertEntry}" CommandParameter="." />
+
+		<KeyBinding Key="Back" Command="{Binding ClearEntry}" />
+		<KeyBinding Key="Escape" Command="{Binding Clear}" />
+
+	</Window.InputBindings>
 
 </Window>

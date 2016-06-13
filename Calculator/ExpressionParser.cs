@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Runtime.Remoting.Channels;
 using System.Text.RegularExpressions;
 using System.Windows.Controls;
@@ -10,7 +11,7 @@ using System.Windows.Media;
 
 namespace Calculator
 {
-	static class ExpressionParser
+	public static class ExpressionParser
 	{
 
 		//Define the operations
@@ -52,6 +53,7 @@ namespace Calculator
 				return i == null || (int)i < 0 ? double.NaN : Enumerable.Range(1, (int)i).Aggregate(1, (x, y) => x * y);
 			};
 
+			Func<double, double> frac = a => a - Math.Floor(a);
 
 
 
@@ -80,6 +82,8 @@ namespace Calculator
 			_unaryOperations.Add("ln(", Math.Log);
 			_unaryOperations.Add("exp(", Math.Exp);
 			_unaryOperations.Add("fact(", fact);
+			_unaryOperations.Add("floor(", Math.Floor);
+			_unaryOperations.Add("frac(", frac);
 
 			_polyadicFunctions = new Dictionary<string, Func<IEnumerable<double>, double>>();
 			_polyadicFunctions.Add("gcd(", ops => ops.Aggregate((a, b) => gcd(a, b)));
@@ -90,12 +94,23 @@ namespace Calculator
 			_constants = new Dictionary<string, double>();
 			_constants.Add("pi", Math.PI);
 			_constants.Add("e", Math.E);
+			_constants.Add("ans", 0);
 		}
 
 		private static readonly Dictionary<string, Func<double, double, double>> _binaryOperations;
 		private static readonly Dictionary<string, Func<double, double>> _unaryOperations;
 		private static readonly Dictionary<string, Func<IEnumerable<double>, double>> _polyadicFunctions;
 		private static readonly Dictionary<string, double> _constants;
+
+		
+		//Unit of angular measure
+		public enum AngleUnit
+		{
+			Degrees,
+			Radians,
+			Grad
+		}
+		public static AngleUnit UsedAngleUnit { get; set; }
 
 
 
@@ -104,7 +119,7 @@ namespace Calculator
 		public static List<Token> Tokenize(string infix)
 		{
 			//Define the pattern
-			const string patternNums = @"\d*\.?\d+(E[+-]?\d*)?";
+			const string patternNums = @"\d*\.?\d+(E[+-]?\d+)?";
 			var patternOps = string.Join("|", Token.ValidTokens.Select(Regex.Escape));
 			var pattern = patternNums + "|" + patternOps;
 
@@ -230,9 +245,7 @@ namespace Calculator
 							if (!stack.Any())
 								return false;
 
-							var top = stack.Peek();
-
-							if (top.Type == TokenType.Function)
+							if (stack.Peek().Type == TokenType.Function)
 								break;
 
 							res.Add(stack.Pop());
@@ -384,6 +397,22 @@ namespace Calculator
 									value = _binaryOperations[curr.Content].Invoke(operands.Pop(), operands.Pop());
 								break;
 							case 1:
+								//Convert operand if trignometric function
+								if (new[] {"sin(", "cos(", "tan(", "asin(", "acos(", "atan("}.Any(func => func == curr.Content))
+								{
+									var operand = operands.Pop();
+									switch (UsedAngleUnit)
+									{
+										case AngleUnit.Degrees:
+											operand = operand * Math.PI / 180;
+											break;
+										case AngleUnit.Grad:
+											operand = operand * Math.PI / 200;
+											break;
+									}
+									operands.Push(operand);
+								}
+
 								value = _unaryOperations[curr.Content].Invoke(operands.Pop());
 								break;
 							default:
@@ -402,7 +431,9 @@ namespace Calculator
 			}
 
 			//Result stack has to be reduced to one token
-			return result.Count() == 1 ? Math.Round(result.Pop(), 10) : double.NaN;
+			var ret = result.Count() == 1 ? Math.Round(result.Pop(), 10) : double.NaN;
+			_constants["ans"] = ret;
+			return ret;
 		}
 
 
