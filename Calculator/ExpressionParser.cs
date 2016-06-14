@@ -413,6 +413,9 @@ namespace Calculator
 									operands.Push(operand);
 								}
 
+								if (!_unaryOperations.ContainsKey(curr.Content))
+									return double.NaN;
+
 								value = _unaryOperations[curr.Content].Invoke(operands.Pop());
 								break;
 							default:
