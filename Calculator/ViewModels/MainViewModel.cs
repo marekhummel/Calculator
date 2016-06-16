@@ -29,17 +29,13 @@ namespace Calculator.ViewModels
 			ChangeToGradUnit = new RelayCommand(obj => UsedAngleUnit = ExpressionParser.AngleUnit.Grad);
 
 			InsertEntry = new RelayCommand(obj => Expression += obj.ToString());
-			ClearEntry = new RelayCommand(obj => Expression = Expression.Substring(0, Expression.Length - 1), () => Expression != "");
+			RemoveLastCharacter = new RelayCommand(obj => Expression = Expression.Substring(0, Expression.Length - 1), () => Expression != "");
 			Clear = new RelayCommand(obj =>
 			{
 				Expression = "";
 				Result = "0";
 			});
-			Evaluate = new RelayCommand(obj =>
-			{
-				var val = ExpressionParser.Evaluate(Expression);
-				Result = val.ToString("G", CultureInfo.InvariantCulture);
-			});
+			Evaluate = new RelayCommand(obj => Result = ExpressionParser.Evaluate(Expression).ToString());
 
 		}
 
@@ -91,15 +87,13 @@ namespace Calculator.ViewModels
 		private string _expression;
 		public string Expression
 		{
-			get
-			{
-				return _expression;
-			}
+			get { return _expression; }
 			set
 			{
 				_expression = value;
 				OnPropertyChanged();
-				OnPropertyChanged(nameof(ClearEntry));
+				OnPropertyChanged(nameof(RemoveLastCharacter));
+				OnPropertyChanged(nameof(Clear));
 			}
 		}
 
@@ -129,7 +123,7 @@ namespace Calculator.ViewModels
 		public ICommand ChangeToGradUnit { get; private set; }
 
 		public ICommand InsertEntry { get; private set; }
-		public ICommand ClearEntry { get; private set; }
+		public ICommand RemoveLastCharacter { get; private set; }
 		public ICommand Clear { get; private set; }
 		public ICommand Evaluate { get; private set; }
 

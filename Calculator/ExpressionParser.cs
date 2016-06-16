@@ -39,6 +39,9 @@ namespace Calculator
 
 			Func<double, double, double> lcm = (a, b) =>
 			{
+				if (a < b)
+					return double.NaN;
+
 				var i = tryParse(a);
 				var j = tryParse(b);
 				if (i == null || j == null)
@@ -62,7 +65,7 @@ namespace Calculator
 			_binaryOperations.Add("+", (a, b) => a + b);
 			_binaryOperations.Add("-", (a, b) => a - b);
 			_binaryOperations.Add("*", (a, b) => a * b);
-			_binaryOperations.Add("/", (a, b) => (b == 0d ? double.NaN : a / b));
+			_binaryOperations.Add("/", (a, b) => (Math.Abs(b) < 10E-10 ? double.NaN : a / b));
 			_binaryOperations.Add("%", (a, b) => a % b);
 			_binaryOperations.Add("^", Math.Pow);
 			_binaryOperations.Add("log(", (a, b) => Math.Log(b, a));
@@ -215,7 +218,7 @@ namespace Calculator
 
 
 		//Infix to postfix
-		public static bool ShuntingYardAlgorithm(List<Token> infix, out List<Token> postfix)
+		public static EvalResult.ErrorType ShuntingYardAlgorithm(List<Token> infix, out List<Token> postfix)
 		{
 			postfix = null;
 
@@ -243,7 +246,7 @@ namespace Calculator
 						{
 							//Wrongly positioned seperator or missing left parenthesis
 							if (!stack.Any())
-								return false;
+								return EvalResult.ErrorType.SyntaxError;
 
 							if (stack.Peek().Type == TokenType.Function)
 								break;
@@ -276,7 +279,7 @@ namespace Calculator
 						{
 							//Missing left parenthesis
 							if (!stack.Any())
-								return false;
+								return EvalResult.ErrorType.SyntaxError;
 
 							var top = stack.Pop();
 
@@ -302,7 +305,7 @@ namespace Calculator
 
 				//More left parentheses than right ones
 				if (top.Type == TokenType.LeftParenthesis || top.Type == TokenType.Function)
-					return false;
+					return EvalResult.ErrorType.SyntaxError;
 
 				res.Add(top);
 			}
@@ -310,30 +313,30 @@ namespace Calculator
 
 
 			postfix = res;
-			return true;
+			return EvalResult.ErrorType.Success;
 		}
 
 
 
 		//Evaluation of a infix string
-		public static double Evaluate(string infix)
+		public static EvalResult Evaluate(string infix)
 		{
 			//Tokenize the string
 			var tokens = Tokenize(infix);
 
 			//Transform to postfix notation
 			List<Token> postfix;
-			var success = ShuntingYardAlgorithm(tokens, out postfix);
+			var resultSya = ShuntingYardAlgorithm(tokens, out postfix);
 
 			//Possible invalid infix
-			return success ? Evaluate(postfix) : double.NaN;
+			return resultSya != EvalResult.ErrorType.Success ? new EvalResult(resultSya) : Evaluate(postfix);
 		}
 
 		//Intern evaluation method
-		private static double Evaluate(IEnumerable<Token> postfix)
+		private static EvalResult Evaluate(IEnumerable<Token> postfix)
 		{
 			var tokens = new Queue<Token>(postfix);
-			var result = new Stack<double>();
+			var resultStack = new Stack<double>();
 
 			//Iterate through all tokens
 			while (tokens.Any())
@@ -346,46 +349,49 @@ namespace Calculator
 				switch (curr.Type)
 				{
 					case TokenType.Number:
-						result.Push(double.Parse(curr.Content, CultureInfo.InvariantCulture));
+						resultStack.Push(double.Parse(curr.Content, CultureInfo.InvariantCulture));
 						break;
 
 					case TokenType.Constant:
-						result.Push(_constants[curr.Content]);
+						resultStack.Push(_constants[curr.Content]);
 						break;
 
 					case TokenType.Operator:
-						if (result.Count() < curr.Arity)
-							return double.NaN;
+						if (resultStack.Count() < curr.Arity)
+							return new EvalResult(EvalResult.ErrorType.SyntaxError);
 
 						//Calculate
 						value = 0d;
 						switch (curr.Arity)
 						{
 							case 2:
-								var right = result.Pop();
-								var left = result.Pop();
+								var right = resultStack.Pop();
+								var left = resultStack.Pop();
 								value = _binaryOperations[curr.Content].Invoke(left, right);
 								break;
 							case 1:
-								var operand = result.Pop();
+								var operand = resultStack.Pop();
 								value = _unaryOperations[curr.Content].Invoke(operand);
 								break;
 						}
 
+						if (double.IsNaN(value))
+							return new EvalResult(EvalResult.ErrorType.MathError);
+
 						//Push
-						result.Push(value);
+						resultStack.Push(value);
 						break;
 
 					case TokenType.Function:
 						var operands = new Stack<double>();
 
 						//Check whether the necessary operands for this operations are given
-						if (result.Count() < curr.Arity)
-							return double.NaN;
+						if (resultStack.Count() < curr.Arity)
+							return new EvalResult(EvalResult.ErrorType.ArgumentError);
 
 						//Get the operands
 						for (var i = 0; i < curr.Arity; i++)
-							operands.Push(result.Pop());
+							operands.Push(resultStack.Pop());
 
 						//Calculate
 						switch (curr.Arity)
@@ -414,7 +420,7 @@ namespace Calculator
 								}
 
 								if (!_unaryOperations.ContainsKey(curr.Content))
-									return double.NaN;
+									return new EvalResult(EvalResult.ErrorType.SyntaxError);
 
 								value = _unaryOperations[curr.Content].Invoke(operands.Pop());
 								break;
@@ -423,20 +429,29 @@ namespace Calculator
 								break;
 						}
 
+						if (double.IsNaN(value))
+							return new EvalResult(EvalResult.ErrorType.MathError);
+
 						//Push
-						result.Push(value);
+						resultStack.Push(value);
 						break;
 
 					default:
 						//Invalid token, postfix notation neither supports parenthesis nor argument seperators
-						return double.NaN;
+						return new EvalResult(EvalResult.ErrorType.SyntaxError);
 				}
 			}
 
 			//Result stack has to be reduced to one token
-			var ret = result.Count() == 1 ? Math.Round(result.Pop(), 10) : double.NaN;
+			if (resultStack.Count() != 1)
+			{ 
+				_constants["ans"] = double.NaN;
+				return new EvalResult(EvalResult.ErrorType.SyntaxError);	
+			}
+
+			var ret = Math.Round(resultStack.Pop(), 10);
 			_constants["ans"] = ret;
-			return ret;
+			return new EvalResult(ret);
 		}
 
 
@@ -454,7 +469,7 @@ namespace Calculator
 			var success = ShuntingYardAlgorithm(tokens, out postfix);
 
 			//Possible invalid infix
-			return success ? CreateExpressionTree(postfix) : null;
+			return success == EvalResult.ErrorType.Success ? CreateExpressionTree(postfix) : null;
 		}
 
 		//Intern exptree method

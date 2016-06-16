@@ -29,14 +29,14 @@ namespace Calculator.Views
 			List<Token> postfix;
 			var success = ExpressionParser.ShuntingYardAlgorithm(tokens, out postfix);
 
-			if (!success)
+			if (success != EvalResult.ErrorType.Success)
 				return;
 
 			tbPostfix.Text = string.Join(" ", postfix); 
 
 			//Eval
 			var result = ExpressionParser.Evaluate(infix);
-			tbResult.Text = result.ToString(CultureInfo.InvariantCulture);
+			tbResult.Text = result.Value.ToString(CultureInfo.InvariantCulture);
 
 			//ExpTree
 			var item = ExpressionParser.CreateExpressionTree(infix);
