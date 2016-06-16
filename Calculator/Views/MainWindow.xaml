@@ -73,19 +73,13 @@
 			</Style.Triggers>
 		</Style>
 
-		<Style x:Key="TextBoxLikeTextBlockStyle" TargetType="{x:Type TextBox}">
-			<Setter Property="Background" Value="Transparent" />
-			<Setter Property="BorderThickness" Value="0" />
-			<Setter Property="IsReadOnly" Value="False" />
-			<Setter Property="TextWrapping" Value="Wrap" />
-			<Setter Property="Focusable" Value="True" />
-		</Style>
 
 		<SolidColorBrush x:Key="BorderBrush" Color="#FF333333" />
 
 		<convs:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 		<convs:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter" />
 		<convs:BoolToBorderThicknessConverter x:Key="BoolToThicknessConverter" />
+
 	</Window.Resources>
 
 	<!-- Outer grid -->
@@ -108,14 +102,10 @@
 					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
 
-				<TextBox Name="ExpressionBox" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding Expression}" Style="{StaticResource TextBoxLikeTextBlockStyle}" TextAlignment="Right" FontFamily="Century Gothic" Margin="0,5,10,0" FontSize="13">
-					<TextBox.InputBindings>
-						<KeyBinding Key="Escape" Command="{Binding Clear}" />
-					</TextBox.InputBindings>
-				</TextBox>
+				<TextBlock Name="ExpressionBox" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding Expression, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Right" FontFamily="Century Gothic" Margin="0,5,10,0" FontSize="13">
+				</TextBlock>
 				<TextBlock Grid.Row="1" Grid.Column="0" Text="=" TextAlignment="Center" VerticalAlignment="Center" FontFamily="Century Gothic" FontSize="36" Margin="10,0,0,0" />
-				<TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Result}" Style="{StaticResource TextBoxLikeTextBlockStyle}" TextAlignment="Right" VerticalAlignment="Bottom" FontSize="36" FontFamily="Century Gothic" Margin="0,0,10,0" />
-
+				<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Result}" TextAlignment="Right" VerticalAlignment="Bottom" FontSize="36" FontFamily="Century Gothic" Margin="0,0,10,0" />
 			</Grid>
 		</Border>
 
@@ -233,7 +223,7 @@
 	<Window.InputBindings>
 		<KeyBinding Key="Enter" Command="{Binding Evaluate}" />
 
-		<!--		<KeyBinding Key="D0" Command="{Binding InsertEntry}" CommandParameter="0" />
+		<KeyBinding Key="D0" Command="{Binding InsertEntry}" CommandParameter="0" />
 		<KeyBinding Key="D1" Command="{Binding InsertEntry}" CommandParameter="1" />
 		<KeyBinding Key="D2" Command="{Binding InsertEntry}" CommandParameter="2" />
 		<KeyBinding Key="D3" Command="{Binding InsertEntry}" CommandParameter="3" />
@@ -266,9 +256,16 @@
 		<KeyBinding Key="Oem5" Command="{Binding InsertEntry}" CommandParameter="^" />
 		<KeyBinding Modifiers="Shift" Key="D5" Command="{Binding InsertEntry}" CommandParameter="%" />
 
+		<KeyBinding Key="e" Command="{Binding InsertEntry}" CommandParameter="e" />
+		<KeyBinding Key="p" Command="{Binding InsertEntry}" CommandParameter="pi" />
+		<KeyBinding Key="s" Command="{Binding InsertEntry}" CommandParameter="sin(" />
+		<KeyBinding Key="c" Command="{Binding InsertEntry}" CommandParameter="cos(" />
+		<KeyBinding Key="t" Command="{Binding InsertEntry}" CommandParameter="tan(" />
+		<KeyBinding Key="l" Command="{Binding InsertEntry}" CommandParameter="log(" />
+
 		<KeyBinding Modifiers="Shift" Key="E" Command="{Binding InsertEntry}" CommandParameter="E" />
-		<KeyBinding Key="Space" Command="{Binding InsertEntry}" CommandParameter=" " /> 
-		<KeyBinding Key="Back" Command="{Binding RemoveLastCharacter}" /> -->
+		<KeyBinding Key="Space" Command="{Binding InsertEntry}" CommandParameter=" " />
+		<KeyBinding Key="Back" Command="{Binding RemoveLastCharacter}" />
 		<KeyBinding Key="Escape" Command="{Binding Clear}" />
 
 	</Window.InputBindings>

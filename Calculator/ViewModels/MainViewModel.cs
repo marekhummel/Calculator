@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.Eventing.Reader;
-using System.Globalization;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 
 namespace Calculator.ViewModels
@@ -89,6 +81,19 @@ namespace Calculator.ViewModels
 			}
 		}
 
+		private int _pointerIndex;
+		public int PointerIndex
+		{
+			get
+			{
+				return _pointerIndex; 
+			}
+			set
+			{
+				_pointerIndex = value;
+				OnPropertyChanged();
+			}
+		}
 
 
 		//Commands 
