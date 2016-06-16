@@ -61,6 +61,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\BoolToBorderThicknessConverter.cs" />
     <Compile Include="Converters\BoolToFontWeightConverter.cs" />
     <Compile Include="EvalResult.cs" />
     <Compile Include="RelayCommand.cs" />

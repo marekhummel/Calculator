@@ -17,13 +17,9 @@ namespace Calculator.ViewModels
 
 		public MainViewModel()
 		{
-			CurrentPage = ButtonPage.Unary;
 			Expression = "";
 			Result = "0";
 
-
-			ChangeToUnaryPage = new RelayCommand(obj => CurrentPage = ButtonPage.Unary);
-			ChangeToPolyadicPage = new RelayCommand(obj => CurrentPage = ButtonPage.Polyadic);
 			ChangeToDegreeUnit = new RelayCommand(obj => UsedAngleUnit = ExpressionParser.AngleUnit.Degrees);
 			ChangeToRadiansUnit = new RelayCommand(obj => UsedAngleUnit = ExpressionParser.AngleUnit.Radians);
 			ChangeToGradUnit = new RelayCommand(obj => UsedAngleUnit = ExpressionParser.AngleUnit.Grad);
@@ -49,21 +45,6 @@ namespace Calculator.ViewModels
 
 
 		// Properties
-		private ButtonPage _currentPage;
-		public ButtonPage CurrentPage
-		{
-			get
-			{
-				return _currentPage;
-			}
-			set
-			{
-				_currentPage = value;
-				OnPropertyChanged(nameof(IsUnaryPageActivated));
-				OnPropertyChanged(nameof(IsPolyadicPageActivated));
-			}
-		}
-
 		public ExpressionParser.AngleUnit UsedAngleUnit
 		{
 			get { return ExpressionParser.UsedAngleUnit; }
@@ -75,9 +56,6 @@ namespace Calculator.ViewModels
 				OnPropertyChanged(nameof(IsUnitGradUsed));
 			}
 		}
-
-		public bool IsUnaryPageActivated => _currentPage == ButtonPage.Unary;
-		public bool IsPolyadicPageActivated => _currentPage == ButtonPage.Polyadic;
 
 		public bool IsUnitDegreesUsed => UsedAngleUnit == ExpressionParser.AngleUnit.Degrees;
 		public bool IsUnitRadiansUsed => UsedAngleUnit == ExpressionParser.AngleUnit.Radians;

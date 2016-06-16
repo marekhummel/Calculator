@@ -59,19 +59,6 @@
 			</Style.Triggers>
 		</Style>
 
-		<Style x:Key="TabControlHeaderButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButtonStyle}">
-			<Setter Property="Background" Value="#FFBEBEBE" />
-			<Setter Property="FontSize" Value="15"/>
-			<Style.Triggers>
-				<Trigger Property="IsMouseOver" Value="True">
-					<Setter Property="Background" Value="#AAAAAA" />
-				</Trigger>
-				<Trigger Property="IsPressed" Value="True">
-					<Setter Property="Background" Value="#888888" />
-				</Trigger>
-			</Style.Triggers>
-		</Style>
-
 		<Style x:Key="AngleUnitButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButtonStyle}">
 			<Setter Property="Background" Value="#FFBEBEBE" />
 			<Setter Property="FontSize" Value="10" />
@@ -94,10 +81,11 @@
 			<Setter Property="Focusable" Value="True" />
 		</Style>
 
-		<SolidColorBrush x:Key="BorderBrush" Color="#FF333333"/>
+		<SolidColorBrush x:Key="BorderBrush" Color="#FF333333" />
 
 		<convs:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 		<convs:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter" />
+		<convs:BoolToBorderThicknessConverter x:Key="BoolToThicknessConverter" />
 	</Window.Resources>
 
 	<!-- Outer grid -->
@@ -138,7 +126,7 @@
 				<ColumnDefinition Width="*" />
 				<ColumnDefinition Width="*" />
 				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="2"/>
+				<ColumnDefinition Width="2" />
 				<ColumnDefinition Width="*" />
 				<ColumnDefinition Width="*" />
 				<ColumnDefinition Width="*" />
@@ -188,58 +176,51 @@
 			<Button Grid.Column="8" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="+" Command="{Binding InsertEntry}" CommandParameter="+" Focusable="False" />
 
 
-			<Rectangle Grid.Column="4" Grid.Row="0" Grid.RowSpan="6" Fill="{StaticResource BorderBrush}"/>
+			<Rectangle Grid.Column="4" Grid.Row="0" Grid.RowSpan="6" Fill="{StaticResource BorderBrush}" />
 
 			<!-- DEG RAD GRAD -->
-			<Grid Grid.Row="0" Grid.Column="0" ColumnSpan="4" Margin="30,5,30,10">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*" />
-					<ColumnDefinition Width="*" />
-					<ColumnDefinition Width="*" />
-				</Grid.ColumnDefinitions>
-
-				<Button Grid.Column="0" Style="{StaticResource AngleUnitButtonStyle}" Content="DEG" Command="{Binding ChangeToDegreeUnit}" FontWeight="{Binding IsUnitDegreesUsed, Converter={StaticResource BoolToFontWeightConverter}}" Focusable="False" />
-				<Button Grid.Column="1" Style="{StaticResource AngleUnitButtonStyle}" Content="RAD" Command="{Binding ChangeToRadiansUnit}" FontWeight="{Binding IsUnitRadiansUsed, Converter={StaticResource BoolToFontWeightConverter}}" Focusable="False" />
-				<Button Grid.Column="2" Style="{StaticResource AngleUnitButtonStyle}" Content="GRAD" Command="{Binding ChangeToGradUnit}" FontWeight="{Binding IsUnitGradUsed, Converter={StaticResource BoolToFontWeightConverter}}" Focusable="False" />
-			</Grid>
-
-
-			<!-- PSEUDO TABCONTROL HEADER -->
-			<Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" BorderThickness="0,0,0,2" BorderBrush="{StaticResource BorderBrush}" Margin="0,0,0,1">
-				<Grid>
+			<Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" BorderThickness="0,0,0,2" BorderBrush="{StaticResource BorderBrush}">
+				<Grid Margin="30,7,30,7">
 					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
 
-					<Button Grid.Column="0" Style="{StaticResource TabControlHeaderButtonStyle}" Content="UNARY" ToolTip="All unary functions (one parameter)" Command="{Binding ChangeToUnaryPage}" FontWeight="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToFontWeightConverter}}" Focusable="False" />
-					<Button Grid.Column="1" Style="{StaticResource TabControlHeaderButtonStyle}" Content="POLYADIC" ToolTip="All polyadic functions (two or more parameters)" Command="{Binding ChangeToPolyadicPage}" FontWeight="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToFontWeightConverter}}" Focusable="False" />
+					<Border Grid.Column="0" BorderThickness="{Binding IsUnitDegreesUsed, Converter={StaticResource BoolToThicknessConverter}}" BorderBrush="{StaticResource BorderBrush}" Margin="2,0,2,0" />
+					<Border Grid.Column="1" BorderThickness="{Binding IsUnitRadiansUsed, Converter={StaticResource BoolToThicknessConverter}}" BorderBrush="{StaticResource BorderBrush}" Margin="2,0,2,0" />
+					<Border Grid.Column="2" BorderThickness="{Binding IsUnitGradUsed, Converter={StaticResource BoolToThicknessConverter}}" BorderBrush="{StaticResource BorderBrush}" Margin="2,0,2,0" />
+
+					<Button Grid.Column="0" Style="{StaticResource AngleUnitButtonStyle}" Content="DEG" Command="{Binding ChangeToDegreeUnit}" FontWeight="{Binding IsUnitDegreesUsed, Converter={StaticResource BoolToFontWeightConverter}}" Focusable="False" />
+					<Button Grid.Column="1" Style="{StaticResource AngleUnitButtonStyle}" Content="RAD" Command="{Binding ChangeToRadiansUnit}" FontWeight="{Binding IsUnitRadiansUsed, Converter={StaticResource BoolToFontWeightConverter}}" Focusable="False" />
+					<Button Grid.Column="2" Style="{StaticResource AngleUnitButtonStyle}" Content="GRAD" Command="{Binding ChangeToGradUnit}" FontWeight="{Binding IsUnitGradUsed, Converter={StaticResource BoolToFontWeightConverter}}" Focusable="False" />
+
 				</Grid>
 			</Border>
 
 			<!-- UNARY BUTTONS -->
-			<Button Grid.Column="0" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="sin" ToolTip="Sine" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="sin(" Focusable="False" />
-			<Button Grid.Column="1" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="cos" ToolTip="Cosine" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="cos(" Focusable="False" />
-			<Button Grid.Column="2" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="tan" ToolTip="Tangent" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="tan(" Focusable="False" />
-			<Button Grid.Column="0" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="asin" ToolTip="Arcussine" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="asin(" Focusable="False" />
-			<Button Grid.Column="1" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="acos" ToolTip="Arcuscosine" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="acos(" Focusable="False" />
-			<Button Grid.Column="2" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="atan" ToolTip="Arcustangent" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="atan(" Focusable="False" />
-			<Button Grid.Column="0" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="abs" ToolTip="Absolute value" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="abs(" Focusable="False" />
-			<Button Grid.Column="1" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="floor" ToolTip="Integer part" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="floor(" Focusable="False" />
-			<Button Grid.Column="2" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="frac" ToolTip="Fractional part" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="frac(" Focusable="False" />
-			<Button Grid.Column="0" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="sqrt" ToolTip="Squareroot" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="sqrt(" Focusable="False" />
-			<Button Grid.Column="1" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="fact" ToolTip="Facorial function" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="fact(" Focusable="False" />
-			<Button Grid.Column="2" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="exp" ToolTip="Natural exponential function" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="exp(" Focusable="False" />
-			<Button Grid.Column="3" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="ln" ToolTip="Natural logarithm" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="ln(" Focusable="False" />
+			<Button Grid.Column="0" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="sin" ToolTip="Sine" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="sin(" Focusable="False" />
+			<Button Grid.Column="1" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="cos" ToolTip="Cosine" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="cos(" Focusable="False" />
+			<Button Grid.Column="2" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="tan" ToolTip="Tangent" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="tan(" Focusable="False" />
+			<Button Grid.Column="0" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="asin" ToolTip="Arcussine" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="asin(" Focusable="False" />
+			<Button Grid.Column="1" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="acos" ToolTip="Arcuscosine" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="acos(" Focusable="False" />
+			<Button Grid.Column="2" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="atan" ToolTip="Arcustangent" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="atan(" Focusable="False" />
+			<Button Grid.Column="0" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="abs" ToolTip="Absolute value" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="abs(" Focusable="False" />
+			<Button Grid.Column="1" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="floor" ToolTip="Integer part" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="floor(" Focusable="False" />
+			<Button Grid.Column="2" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="frac" ToolTip="Fractional part" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="frac(" Focusable="False" />
+			<Button Grid.Column="0" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="sqrt" ToolTip="Squareroot" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="sqrt(" Focusable="False" />
+			<Button Grid.Column="1" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="fact" ToolTip="Facorial function" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="fact(" Focusable="False" />
+			<Button Grid.Column="2" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="exp" ToolTip="Natural exponential function" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="exp(" Focusable="False" />
+			<Button Grid.Column="3" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="ln" ToolTip="Natural logarithm" Visibility="{Binding IsUnaryPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="ln(" Focusable="False" />
 
 			<!-- POLYADIC -->
-			<Button Grid.Column="0" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="log" ToolTip="Logarithm(Base, Value)" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="log(" Focusable="False" />
-			<Button Grid.Column="0" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="nCr" ToolTip="Combination" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="nCr(" Focusable="False" />
-			<Button Grid.Column="1" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="nPr" ToolTip="Permutation" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="nPr(" Focusable="False" />
-			<Button Grid.Column="0" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="min" ToolTip="Minimum value" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="min(" Focusable="False" />
-			<Button Grid.Column="1" Grid.Row="4" Style="{StaticResource OperatorButtonStyle}" Content="max" ToolTip="Maximum value" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="max(" Focusable="False" />
-			<Button Grid.Column="0" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="gcd" ToolTip="Greatest common divisor" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="gcd(" Focusable="False" />
-			<Button Grid.Column="1" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="lcm" ToolTip="Least common multiple" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="lcm(" Focusable="False" />
+			<Button Grid.Column="3" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="log" ToolTip="Logarithm(Base, Value)" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="log(" Focusable="False" />
+			<Button Grid.Column="3" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="nCr" ToolTip="Combination" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="nCr(" Focusable="False" />
+			<Button Grid.Column="3" Grid.Row="2" Style="{StaticResource OperatorButtonStyle}" Content="nPr" ToolTip="Permutation" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="nPr(" Focusable="False" />
+			<Button Grid.Column="0" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="min" ToolTip="Minimum value" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="min(" Focusable="False" />
+			<Button Grid.Column="1" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="max" ToolTip="Maximum value" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="max(" Focusable="False" />
+			<Button Grid.Column="2" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="gcd" ToolTip="Greatest common divisor" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="gcd(" Focusable="False" />
+			<Button Grid.Column="3" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="lcm" ToolTip="Least common multiple" Visibility="{Binding IsPolyadicPageActivated, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding InsertEntry}" CommandParameter="lcm(" Focusable="False" />
 		</Grid>
 
 
