@@ -27,7 +27,7 @@ namespace Calculator
 			var polyadics = "gcd( lcm( max( min(".Split(' ');
 			_functions = "sin( cos( tan( asin( acos( atan( abs( sqrt( log( ln( exp( fact( ncr( npr( floor( frac(".Split(' ').Concat(polyadics).ToArray();
 			_constants = "pi e ans".Split(' ');
-			_operators = "+ - * / % ^ !".Split(' ');
+			_operators = "+ - * / % ^ ! & |".Split(' ');
 			_seperators = "( ) ,".Split(' ');
 
 			ValidTokens = new[] { _functions, _operators, _seperators, _constants }.SelectMany(tok => tok).ToArray();
@@ -42,6 +42,8 @@ namespace Calculator
 			_precedence.Add("/", 2);
 			_precedence.Add("%", 2);
 			_precedence.Add("^", 3);
+			_precedence.Add("&", 2);
+			_precedence.Add("|", 1);	
 			_precedence.Add("(", 0);
 			_precedence.Add(")", 0);
 			_precedence.Add(",", 0);
@@ -77,6 +79,8 @@ namespace Calculator
 			_associativity.Add("/", AssociativityType.Left);
 			_associativity.Add("%", AssociativityType.Left);
 			_associativity.Add("^", AssociativityType.Right);
+			_associativity.Add("&", AssociativityType.Left);
+			_associativity.Add("|", AssociativityType.Left);
 			_associativity.Add("(", AssociativityType.None);
 			_associativity.Add(")", AssociativityType.None);
 			_associativity.Add(",", AssociativityType.None);
@@ -110,6 +114,8 @@ namespace Calculator
 			_arity.Add("/", 2);
 			_arity.Add("%", 2);
 			_arity.Add("^", 2);
+			_arity.Add("&", 2);
+			_arity.Add("|", 2);
 			_arity.Add("(", -1);
 			_arity.Add(")", -1);
 			_arity.Add(",", -1);

@@ -29,6 +29,9 @@ namespace Calculator
 			Func<double, double, double> gcd = null;
 			gcd = (a, b) =>
 			{
+				if (a < b)
+					return gcd(b, a);
+
 				var i = tryParse(a);
 				var j = tryParse(b);
 				if (i == null || j == null)
@@ -39,9 +42,6 @@ namespace Calculator
 
 			Func<double, double, double> lcm = (a, b) =>
 			{
-				if (a < b)
-					return double.NaN;
-
 				var i = tryParse(a);
 				var j = tryParse(b);
 				if (i == null || j == null)
@@ -53,10 +53,28 @@ namespace Calculator
 			Func<double, double> fact = a =>
 			{
 				var i = tryParse(a);
-				return i == null || (int)i < 0 ? double.NaN : Enumerable.Range(1, (int)i).Aggregate(1, (x, y) => x * y);
+				return i == null || i < 0 ? double.NaN : Enumerable.Range(1, (int)i).Aggregate(1, (x, y) => x * y);
 			};
 
-			Func<double, double> frac = a => a - Math.Floor(a);
+			Func<double, double, double> and = (a, b) =>
+			{
+				var i = tryParse(a);
+				var j = tryParse(b);
+				if (i == null || j == null)
+					return double.NaN;
+
+				return (double)(i & j);
+			};
+
+			Func<double, double, double> or = (a, b) =>
+			{
+				var i = tryParse(a);
+				var j = tryParse(b);
+				if (i == null || j == null)
+					return double.NaN;
+
+				return (double)(i | j);
+			};
 
 
 
@@ -68,8 +86,10 @@ namespace Calculator
 			_binaryOperations.Add("/", (a, b) => (Math.Abs(b) < 10E-10 ? double.NaN : a / b));
 			_binaryOperations.Add("%", (a, b) => a % b);
 			_binaryOperations.Add("^", Math.Pow);
+			_binaryOperations.Add("&", and);
+			_binaryOperations.Add("|", or);
 			_binaryOperations.Add("log(", (a, b) => Math.Log(b, a));
-			_binaryOperations.Add("ncr(", (a, b) => fact(a) / (fact(b) * fact(a-b)));
+			_binaryOperations.Add("ncr(", (a, b) => fact(a) / (fact(b) * fact(a - b)));
 			_binaryOperations.Add("npr(", (a, b) => fact(a) / (fact(b)));
 
 			_unaryOperations = new Dictionary<string, Func<double, double>>();
@@ -86,7 +106,7 @@ namespace Calculator
 			_unaryOperations.Add("exp(", Math.Exp);
 			_unaryOperations.Add("fact(", fact);
 			_unaryOperations.Add("floor(", Math.Floor);
-			_unaryOperations.Add("frac(", frac);
+			_unaryOperations.Add("frac(", a => a - Math.Floor(a));
 
 			_polyadicFunctions = new Dictionary<string, Func<IEnumerable<double>, double>>();
 			_polyadicFunctions.Add("gcd(", ops => ops.Aggregate((a, b) => gcd(a, b)));
@@ -105,7 +125,7 @@ namespace Calculator
 		private static readonly Dictionary<string, Func<IEnumerable<double>, double>> _polyadicFunctions;
 		private static readonly Dictionary<string, double> _constants;
 
-		
+
 		//Unit of angular measure
 		public enum AngleUnit
 		{
@@ -404,7 +424,7 @@ namespace Calculator
 								break;
 							case 1:
 								//Convert operand if trignometric function
-								if (new[] {"sin(", "cos(", "tan(", "asin(", "acos(", "atan("}.Any(func => func == curr.Content))
+								if (new[] { "sin(", "cos(", "tan(", "asin(", "acos(", "atan(" }.Any(func => func == curr.Content))
 								{
 									var operand = operands.Pop();
 									switch (UsedAngleUnit)
@@ -444,9 +464,9 @@ namespace Calculator
 
 			//Result stack has to be reduced to one token
 			if (resultStack.Count() != 1)
-			{ 
+			{
 				_constants["ans"] = double.NaN;
-				return new EvalResult(EvalResult.ErrorType.SyntaxError);	
+				return new EvalResult(EvalResult.ErrorType.SyntaxError);
 			}
 
 			var ret = Math.Round(resultStack.Pop(), 10);

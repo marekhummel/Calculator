@@ -14,7 +14,7 @@ namespace Calculator
 		public EvalResult(double val)
 		{
 			Value = val;
-			Error = ErrorType.Success;
+			Error = EvalResult.ErrorType.Success;
 		}
 
 		public EvalResult(ErrorType type)

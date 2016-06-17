@@ -135,12 +135,12 @@
 
 
 			<!-- RIGHT MAIN BUTTONS -->
-			<Button Grid.Column="5" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content="π" ToolTip="PI" Command="{Binding InsertEntry}" CommandParameter="pi" Focusable="False" />
-			<Button Grid.Column="6" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content="&lt;--" Focusable="False" IsEnabled="False" />
-			<Button Grid.Column="7" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content="-->" Focusable="False" IsEnabled="False" />
+			<Button Grid.Column="5" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content="And" ToolTip="Logical AND" Command="{Binding InsertEntry}" CommandParameter="&amp;" Focusable="False" />
+			<Button Grid.Column="6" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content="π" ToolTip="PI" Command="{Binding InsertEntry}" CommandParameter="pi" Focusable="False" />
+			<Button Grid.Column="7" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content="e" ToolTip="Euler's number" Command="{Binding InsertEntry}" CommandParameter="e" FontStyle="Italic" Focusable="False" />
 			<Button Grid.Column="8" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content="(" Command="{Binding InsertEntry}" CommandParameter="(" Focusable="False" />
 			<Button Grid.Column="9" Grid.Row="0" Style="{StaticResource OperatorButtonStyle}" Content=")" Command="{Binding InsertEntry}" CommandParameter=")" Focusable="False" />
-			<Button Grid.Column="5" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="e" ToolTip="Euler's number" Command="{Binding InsertEntry}" CommandParameter="e" FontStyle="Italic" Focusable="False" />
+			<Button Grid.Column="5" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="Or" ToolTip="Logical OR" Command="{Binding InsertEntry}" CommandParameter="|" Focusable="False" />
 			<Button Grid.Column="6" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="," ToolTip="Argument seperator" Command="{Binding InsertEntry}" CommandParameter="," Focusable="False" />
 			<Button Grid.Column="7" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="Mod" ToolTip="Modulo function" Command="{Binding InsertEntry}" CommandParameter="%" Focusable="False" />
 			<Button Grid.Column="8" Grid.Row="1" Style="{StaticResource OperatorButtonStyle}" Content="^" ToolTip="Power" Command="{Binding InsertEntry}" CommandParameter="^" Focusable="False" />
@@ -166,7 +166,7 @@
 			<Button Grid.Column="8" Grid.Row="5" Style="{StaticResource OperatorButtonStyle}" Content="+" Command="{Binding InsertEntry}" CommandParameter="+" Focusable="False" />
 
 
-			<Rectangle Grid.Column="4" Grid.Row="0" Grid.RowSpan="6" Fill="{StaticResource BorderBrush}" />
+			<Rectangle Grid.Column="4" Grid.Row="0" Grid.RowSpan="6" Fill="{StaticResource BorderBrush}" Margin="0,-1,0,0" />
 
 			<!-- DEG RAD GRAD -->
 			<Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" BorderThickness="0,0,0,2" BorderBrush="{StaticResource BorderBrush}">
@@ -255,6 +255,8 @@
 		<KeyBinding Modifiers="Shift" Key="D7" Command="{Binding InsertEntry}" CommandParameter="/" />
 		<KeyBinding Key="Oem5" Command="{Binding InsertEntry}" CommandParameter="^" />
 		<KeyBinding Modifiers="Shift" Key="D5" Command="{Binding InsertEntry}" CommandParameter="%" />
+		<KeyBinding Modifiers="Shift" Key="D6" Command="{Binding InsertEntry}" CommandParameter="&amp;" />
+		<KeyBinding Modifiers="Control+Alt" Key="OemBackslash" Command="{Binding InsertEntry}" CommandParameter="|" />
 
 		<KeyBinding Key="e" Command="{Binding InsertEntry}" CommandParameter="e" />
 		<KeyBinding Key="p" Command="{Binding InsertEntry}" CommandParameter="pi" />
