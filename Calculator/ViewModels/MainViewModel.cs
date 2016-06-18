@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Calculator.ViewModels
@@ -16,6 +17,8 @@ namespace Calculator.ViewModels
 			ChangeToRadiansUnit = new RelayCommand(obj => UsedAngleUnit = ExpressionParser.AngleUnit.Radians);
 			ChangeToGradUnit = new RelayCommand(obj => UsedAngleUnit = ExpressionParser.AngleUnit.Grad);
 
+			ToggleShortCutVisibility = new RelayCommand(obj => AreShortCutsVisible = !AreShortCutsVisible);
+
 			InsertEntry = new RelayCommand(obj => Expression += obj.ToString());
 			RemoveLastCharacter = new RelayCommand(obj => Expression = Expression.Substring(0, Expression.Length - 1), () => Expression != "");
 			Clear = new RelayCommand(obj =>
@@ -26,14 +29,6 @@ namespace Calculator.ViewModels
 			Evaluate = new RelayCommand(obj => Result = ExpressionParser.Evaluate(Expression).ToString());
 
 		}
-
-
-		public enum ButtonPage
-		{
-			Unary,
-			Polyadic
-		}
-
 
 
 		// Properties
@@ -53,6 +48,28 @@ namespace Calculator.ViewModels
 		public bool IsUnitRadiansUsed => UsedAngleUnit == ExpressionParser.AngleUnit.Radians;
 		public bool IsUnitGradUsed => UsedAngleUnit == ExpressionParser.AngleUnit.Grad;
 
+		private bool _areShortcutsVisible;
+		public bool AreShortCutsVisible
+		{
+			get { return _areShortcutsVisible; }
+			set
+			{
+				_areShortcutsVisible = value;
+				OnPropertyChanged();
+			}
+		}
+
+
+		private bool _hasExpressionChanged;
+		public bool HasExpressionChanged
+		{
+			get { return _hasExpressionChanged; }
+			set
+			{
+				_hasExpressionChanged = value;
+				OnPropertyChanged();
+			}
+		}
 
 		private string _expression;
 		public string Expression
@@ -61,6 +78,7 @@ namespace Calculator.ViewModels
 			set
 			{
 				_expression = value;
+				HasExpressionChanged = true;
 				OnPropertyChanged();
 				OnPropertyChanged(nameof(RemoveLastCharacter));
 				OnPropertyChanged(nameof(Clear));
@@ -77,6 +95,7 @@ namespace Calculator.ViewModels
 			set
 			{
 				_result = value;
+				HasExpressionChanged = false;
 				OnPropertyChanged();
 			}
 		}
@@ -105,10 +124,14 @@ namespace Calculator.ViewModels
 		public ICommand ChangeToRadiansUnit { get; private set; }
 		public ICommand ChangeToGradUnit { get; private set; }
 
+		public ICommand ToggleShortCutVisibility { get; private set; }
+
 		public ICommand InsertEntry { get; private set; }
 		public ICommand RemoveLastCharacter { get; private set; }
 		public ICommand Clear { get; private set; }
 		public ICommand Evaluate { get; private set; }
+
+
 
 
 		// INotifyPropertyChanged support

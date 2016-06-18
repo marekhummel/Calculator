@@ -63,6 +63,7 @@
     </ApplicationDefinition>
     <Compile Include="Converters\BoolToBorderThicknessConverter.cs" />
     <Compile Include="Converters\BoolToFontWeightConverter.cs" />
+    <Compile Include="Converters\BoolToForegroundConverter.cs" />
     <Compile Include="EvalResult.cs" />
     <Compile Include="RelayCommand.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
