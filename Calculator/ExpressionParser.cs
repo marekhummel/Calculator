@@ -219,7 +219,7 @@ namespace Calculator
 					else if (right.Content == "+")
 						tokens.RemoveAt(pindex + 1);
 				}
-				else if (left.Type == TokenType.LeftParenthesis && right.Type == TokenType.Operator)
+				else if ((left.Type == TokenType.LeftParenthesis || left.Type == TokenType.ArgumentSeperator) && right.Type == TokenType.Operator)
 				{
 					if (right.Content == "-")
 						tokens[pindex + 1] = new Token("!");

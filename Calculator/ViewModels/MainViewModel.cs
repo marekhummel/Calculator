@@ -13,9 +13,21 @@ namespace Calculator.ViewModels
 			Expression = "";
 			Result = "0";
 
-			ChangeToDegreeUnit = new RelayCommand(obj => UsedAngleUnit = ExpressionParser.AngleUnit.Degrees);
-			ChangeToRadiansUnit = new RelayCommand(obj => UsedAngleUnit = ExpressionParser.AngleUnit.Radians);
-			ChangeToGradUnit = new RelayCommand(obj => UsedAngleUnit = ExpressionParser.AngleUnit.Grad);
+			ChangeToDegreeUnit = new RelayCommand(obj =>
+			{
+				UsedAngleUnit = ExpressionParser.AngleUnit.Degrees;
+				HasExpressionChanged = true;
+			});
+			ChangeToRadiansUnit = new RelayCommand(obj =>
+			{
+				UsedAngleUnit = ExpressionParser.AngleUnit.Radians;
+				HasExpressionChanged = true;
+			});
+			ChangeToGradUnit = new RelayCommand(obj =>
+			{
+				UsedAngleUnit = ExpressionParser.AngleUnit.Grad;
+				HasExpressionChanged = true;
+			});
 
 			ToggleShortCutVisibility = new RelayCommand(obj => AreShortCutsVisible = !AreShortCutsVisible);
 
