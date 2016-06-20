@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Net;
-using System.Runtime.Remoting.Channels;
 using System.Text.RegularExpressions;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace Calculator
 {
@@ -329,7 +325,6 @@ namespace Calculator
 
 				res.Add(top);
 			}
-
 
 
 			postfix = res;
