@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
@@ -12,6 +14,7 @@ namespace Calculator.ViewModels
 		{
 			Expression = "";
 			Result = "0";
+			_entries = new Stack<string>();
 
 			ChangeToDegreeUnit = new RelayCommand(obj =>
 			{
@@ -31,12 +34,17 @@ namespace Calculator.ViewModels
 
 			ToggleShortCutVisibility = new RelayCommand(obj => AreShortCutsVisible = !AreShortCutsVisible);
 
-			InsertEntry = new RelayCommand(obj => Expression += obj.ToString());
-			RemoveLastCharacter = new RelayCommand(obj => Expression = Expression.Substring(0, Expression.Length - 1), () => Expression != "");
+			InsertEntry = new RelayCommand(obj =>
+			{
+				Expression += obj.ToString();
+				_entries.Push(obj.ToString());
+			});
+			RemoveLastEntry = new RelayCommand(obj => Expression = Expression.Substring(0, Expression.Length - _entries.Pop().Length), () => _entries.Any());
 			Clear = new RelayCommand(obj =>
 			{
 				Expression = "";
 				Result = "0";
+				_entries.Clear();
 			});
 			Evaluate = new RelayCommand(obj => Result = ExpressionParser.Evaluate(Expression).ToString());
 
@@ -92,7 +100,7 @@ namespace Calculator.ViewModels
 				_expression = value;
 				HasExpressionChanged = true;
 				OnPropertyChanged();
-				OnPropertyChanged(nameof(RemoveLastCharacter));
+				OnPropertyChanged(nameof(RemoveLastEntry));
 				OnPropertyChanged(nameof(Clear));
 			}
 		}
@@ -138,8 +146,9 @@ namespace Calculator.ViewModels
 
 		public ICommand ToggleShortCutVisibility { get; private set; }
 
+		private Stack<string> _entries;
 		public ICommand InsertEntry { get; private set; }
-		public ICommand RemoveLastCharacter { get; private set; }
+		public ICommand RemoveLastEntry { get; private set; }
 		public ICommand Clear { get; private set; }
 		public ICommand Evaluate { get; private set; }
 

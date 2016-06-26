@@ -49,7 +49,7 @@ namespace Calculator
 			Func<double, double> fact = a =>
 			{
 				var i = tryParse(a);
-				return i == null || i < 0 ? double.NaN : Enumerable.Range(1, (int)i).Aggregate(1, (x, y) => x * y);
+				return i == null || i < 0 ? double.NaN : Enumerable.Range(1, (int)i).Aggregate(1d, (x, y) => x * y);
 			};
 
 			Func<double, double, double> and = (a, b) =>
@@ -325,7 +325,6 @@ namespace Calculator
 
 				res.Add(top);
 			}
-
 
 			postfix = res;
 			return EvalResult.ErrorType.Success;

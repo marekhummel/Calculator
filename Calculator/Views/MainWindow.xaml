@@ -181,7 +181,7 @@
 			<Button Grid.Column="6" Grid.Row="3" Style="{StaticResource DigitButtonStyle}" Content="5" Command="{Binding InsertEntry}" CommandParameter="5" Focusable="False" />
 			<Button Grid.Column="7" Grid.Row="3" Style="{StaticResource DigitButtonStyle}" Content="6" Command="{Binding InsertEntry}" CommandParameter="6" Focusable="False" />
 			<Button Grid.Column="8" Grid.Row="3" Style="{StaticResource OperatorButtonStyle}" Content="*" Command="{Binding InsertEntry}" CommandParameter="*" Focusable="False" />
-			<Button Grid.Column="9" Grid.Row="3" Style="{StaticResource SpecialButtonStyle}" Content="DEL" Command="{Binding RemoveLastCharacter}" Focusable="False" />
+			<Button Grid.Column="9" Grid.Row="3" Style="{StaticResource SpecialButtonStyle}" Content="DEL" Command="{Binding RemoveLastEntry}" Focusable="False" />
 			<Button Grid.Column="5" Grid.Row="4" Style="{StaticResource DigitButtonStyle}" Content="1" Command="{Binding InsertEntry}" CommandParameter="1" Focusable="False" />
 			<Button Grid.Column="6" Grid.Row="4" Style="{StaticResource DigitButtonStyle}" Content="2" Command="{Binding InsertEntry}" CommandParameter="2" Focusable="False" />
 			<Button Grid.Column="7" Grid.Row="4" Style="{StaticResource DigitButtonStyle}" Content="3" Command="{Binding InsertEntry}" CommandParameter="3" Focusable="False" />
@@ -318,7 +318,7 @@
 
 		<KeyBinding Modifiers="Shift" Key="E" Command="{Binding InsertEntry}" CommandParameter="E" />
 		<KeyBinding Key="Space" Command="{Binding InsertEntry}" CommandParameter=" " />
-		<KeyBinding Key="Back" Command="{Binding RemoveLastCharacter}" />
+		<KeyBinding Key="Back" Command="{Binding RemoveLastEntry}" />
 		<KeyBinding Key="Escape" Command="{Binding Clear}" />
 
 		<KeyBinding Key="LeftAlt" Modifiers="Alt" Command="{Binding ToggleShortCutVisibility}"/>
