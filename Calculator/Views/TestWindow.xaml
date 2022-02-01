@@ -21,7 +21,7 @@
 				 Text="max(2 5)"
 				 VerticalAlignment="Top"
 				 Width="295"
-				 TextChanged="tbInfix_TextChanged" />
+				 TextChanged="TbInfix_TextChanged" />
 		<Label x:Name="lblInfix"
 			   Content="Infix"
 			   Margin="18,27,0,0"
@@ -48,7 +48,7 @@
 				Margin="259,0,0,17"
 				Width="104"
 				IsDefault="True"
-				Click="btnConvert_Click"
+				Click="BtnConvert_Click"
 				Height="61"
 				VerticalAlignment="Bottom" />
 		<ListBox x:Name="lbTokens"

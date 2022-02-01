@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Views\Calculator.ico</ApplicationIcon>
+    <StartupObject>Calculator.App</StartupObject>
+    <Copyright>Marek Hummel, 2022</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

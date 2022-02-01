@@ -1,58 +1,57 @@
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Windows;
 
 
 namespace Calculator.Views
 {
-	/// <summary>
-	/// Interaction logic for Window1.xaml
-	/// </summary>
-	public partial class TestWindow : Window
-	{
-		public TestWindow()
-		{
-			InitializeComponent();
-		}
+    /// <summary>
+    /// Interaction logic for Window1.xaml
+    /// </summary>
+    public partial class TestWindow : Window
+    {
+        public TestWindow()
+        {
+            InitializeComponent();
+        }
 
-		private void btnConvert_Click(object sender, RoutedEventArgs e)
-		{
-			var infix = tbInfix.Text;
+        private void BtnConvert_Click(object sender, RoutedEventArgs e)
+        {
+            string? infix = tbInfix.Text;
 
-			//Tokenize
-			var tokens = ExpressionParser.Tokenize(infix);
-			lbTokens.Items.Clear();
-			tokens.ForEach(t => lbTokens.Items.Add(t.ToString()));
+            //Tokenize
+            var tokens = ExpressionParser.Tokenize(infix);
+            lbTokens.Items.Clear();
+            tokens.ForEach(t => lbTokens.Items.Add(t.ToString()));
 
-			//SYA
-			List<Token> postfix;
-			var success = ExpressionParser.ShuntingYardAlgorithm(tokens, out postfix);
+            //SYA
+            var success = ExpressionParser.ShuntingYardAlgorithm(tokens, out var postfix);
 
-			if (success != EvalResult.ErrorType.Success)
-				return;
+            if (success != EvalResult.ErrorType.Success) {
+                return;
+            }
 
-			tbPostfix.Text = string.Join(" ", postfix); 
+            tbPostfix.Text = string.Join(" ", postfix);
 
-			//Eval
-			var result = ExpressionParser.Evaluate(infix);
-			tbResult.Text = result.Value.ToString(CultureInfo.InvariantCulture);
+            //Eval
+            var result = ExpressionParser.Evaluate(infix);
+            tbResult.Text = result.Value.ToString(CultureInfo.InvariantCulture);
 
-			//ExpTree
-			var item = ExpressionParser.CreateExpressionTree(infix);
-			tvExptree.Items.Clear();
-			tvExptree.Items.Add(item);
-		}
+            //ExpTree
+            var item = ExpressionParser.CreateExpressionTree(infix);
+            tvExptree.Items.Clear();
+            _ = tvExptree.Items.Add(item);
+        }
 
-		private void tbInfix_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-		{
-			if (tbPostfix == null)
-				return;
+        private void TbInfix_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (tbPostfix == null) {
+                return;
+            }
 
-			tbPostfix.Text = "";
-			tbResult.Text = "";
-			lbTokens.Items.Clear();
-			tvExptree.Items.Clear();
-		}
-	}
+            tbPostfix.Text = "";
+            tbResult.Text = "";
+            lbTokens.Items.Clear();
+            tvExptree.Items.Clear();
+        }
+    }
 }

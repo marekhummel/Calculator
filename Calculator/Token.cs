@@ -1,235 +1,217 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
-using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Calculator
 {
-	public class Token
-	{
+    public class Token
+    {
 
 
-		//Statics
-		private static readonly bool _initialized;
-		static Token()
-		{
+        //Statics
+        static Token()
+        {
+            //Define the valid / known tokens
+            string[]? polyadics = "gcd( lcm( max( min(".Split(' ');
+            _functions = "sin( cos( tan( asin( acos( atan( abs( sqrt( log( ln( exp( fact( ncr( npr( floor( frac(".Split(' ').Concat(polyadics).ToArray();
+            _constants = "pi e ans".Split(' ');
+            _operators = "+ - * / % ^ ! & |".Split(' ');
+            _seperators = "( ) ,".Split(' ');
 
-			//only execute this method once
-			if(_initialized)
-				return;
+            ValidTokens = new[] { _functions, _operators, _seperators, _constants }.SelectMany(tok => tok).ToArray();
+            PolyadicFunctions = polyadics;
 
-			//Define the valid / known tokens
-			var polyadics = "gcd( lcm( max( min(".Split(' ');
-			_functions = "sin( cos( tan( asin( acos( atan( abs( sqrt( log( ln( exp( fact( ncr( npr( floor( frac(".Split(' ').Concat(polyadics).ToArray();
-			_constants = "pi e ans".Split(' ');
-			_operators = "+ - * / % ^ ! & |".Split(' ');
-			_seperators = "( ) ,".Split(' ');
-
-			ValidTokens = new[] { _functions, _operators, _seperators, _constants }.SelectMany(tok => tok).ToArray();
-			PolyadicFunctions = polyadics; 
-
-			//Precedences
-			_precedence = new Dictionary<string, int>();
-			_precedence.Add("+", 1);
-			_precedence.Add("-", 1);
-			_precedence.Add("!", 2);
-			_precedence.Add("*", 2);
-			_precedence.Add("/", 2);
-			_precedence.Add("%", 2);
-			_precedence.Add("^", 3);
-			_precedence.Add("&", 2);
-			_precedence.Add("|", 1);	
-			_precedence.Add("(", 0);
-			_precedence.Add(")", 0);
-			_precedence.Add(",", 0);
-			_precedence.Add("sin(", 4);
-			_precedence.Add("cos(", 4);
-			_precedence.Add("tan(", 4);
-			_precedence.Add("asin(", 4);
-			_precedence.Add("acos(", 4);
-			_precedence.Add("atan(", 4);
-			_precedence.Add("sqrt(", 4);
-			_precedence.Add("log(", 4);
-			_precedence.Add("ln(", 4);
-			_precedence.Add("abs(", 4);
-			_precedence.Add("exp(", 4);
-			_precedence.Add("fact(", 4);
-			_precedence.Add("ncr(", 4);
-			_precedence.Add("npr(", 4);
-			_precedence.Add("gcd(", 4);
-			_precedence.Add("lcm(", 4);
-			_precedence.Add("max(", 4);
-			_precedence.Add("min(", 4);
-			_precedence.Add("floor(", 4);
-			_precedence.Add("frac(", 4);
+            //Precedences
+            _precedence = new Dictionary<string, int> {
+                { "+", 1 },
+                { "-", 1 },
+                { "!", 2 },
+                { "*", 2 },
+                { "/", 2 },
+                { "%", 2 },
+                { "^", 3 },
+                { "&", 2 },
+                { "|", 1 },
+                { "(", 0 },
+                { ")", 0 },
+                { ",", 0 },
+                { "sin(", 4 },
+                { "cos(", 4 },
+                { "tan(", 4 },
+                { "asin(", 4 },
+                { "acos(", 4 },
+                { "atan(", 4 },
+                { "sqrt(", 4 },
+                { "log(", 4 },
+                { "ln(", 4 },
+                { "abs(", 4 },
+                { "exp(", 4 },
+                { "fact(", 4 },
+                { "ncr(", 4 },
+                { "npr(", 4 },
+                { "gcd(", 4 },
+                { "lcm(", 4 },
+                { "max(", 4 },
+                { "min(", 4 },
+                { "floor(", 4 },
+                { "frac(", 4 }
+            };
 
 
 
-			//Associativities
-			_associativity = new Dictionary<string, AssociativityType>();
-			_associativity.Add("+", AssociativityType.Left);
-			_associativity.Add("-", AssociativityType.Left);
-			_associativity.Add("!", AssociativityType.None);
-			_associativity.Add("*", AssociativityType.Left);
-			_associativity.Add("/", AssociativityType.Left);
-			_associativity.Add("%", AssociativityType.Left);
-			_associativity.Add("^", AssociativityType.Right);
-			_associativity.Add("&", AssociativityType.Left);
-			_associativity.Add("|", AssociativityType.Left);
-			_associativity.Add("(", AssociativityType.None);
-			_associativity.Add(")", AssociativityType.None);
-			_associativity.Add(",", AssociativityType.None);
-			_associativity.Add("sin(", AssociativityType.None);
-			_associativity.Add("cos(", AssociativityType.None);
-			_associativity.Add("tan(", AssociativityType.None);
-			_associativity.Add("asin(", AssociativityType.None);
-			_associativity.Add("acos(", AssociativityType.None);
-			_associativity.Add("atan(", AssociativityType.None);
-			_associativity.Add("sqrt(", AssociativityType.None);
-			_associativity.Add("log(", AssociativityType.None);
-			_associativity.Add("ln(", AssociativityType.None);
-			_associativity.Add("abs(", AssociativityType.None);
-			_associativity.Add("exp(", AssociativityType.None);
-			_associativity.Add("fact(", AssociativityType.None);
-			_associativity.Add("ncr(", AssociativityType.None);
-			_associativity.Add("npr(", AssociativityType.None);
-			_associativity.Add("gcd(", AssociativityType.None);
-			_associativity.Add("lcm(", AssociativityType.None);
-			_associativity.Add("max(", AssociativityType.None);
-			_associativity.Add("min(", AssociativityType.None);
-			_associativity.Add("floor(", AssociativityType.None);
-			_associativity.Add("frac(", AssociativityType.None);
+            //Associativities
+            _associativity = new Dictionary<string, AssociativityType> {
+                { "+", AssociativityType.Left },
+                { "-", AssociativityType.Left },
+                { "!", AssociativityType.None },
+                { "*", AssociativityType.Left },
+                { "/", AssociativityType.Left },
+                { "%", AssociativityType.Left },
+                { "^", AssociativityType.Right },
+                { "&", AssociativityType.Left },
+                { "|", AssociativityType.Left },
+                { "(", AssociativityType.None },
+                { ")", AssociativityType.None },
+                { ",", AssociativityType.None },
+                { "sin(", AssociativityType.None },
+                { "cos(", AssociativityType.None },
+                { "tan(", AssociativityType.None },
+                { "asin(", AssociativityType.None },
+                { "acos(", AssociativityType.None },
+                { "atan(", AssociativityType.None },
+                { "sqrt(", AssociativityType.None },
+                { "log(", AssociativityType.None },
+                { "ln(", AssociativityType.None },
+                { "abs(", AssociativityType.None },
+                { "exp(", AssociativityType.None },
+                { "fact(", AssociativityType.None },
+                { "ncr(", AssociativityType.None },
+                { "npr(", AssociativityType.None },
+                { "gcd(", AssociativityType.None },
+                { "lcm(", AssociativityType.None },
+                { "max(", AssociativityType.None },
+                { "min(", AssociativityType.None },
+                { "floor(", AssociativityType.None },
+                { "frac(", AssociativityType.None }
+            };
 
-			//Arities
-			_arity = new Dictionary<string, int>();
-			_arity.Add("+", 2);
-			_arity.Add("-", 2);
-			_arity.Add("!", 1);
-			_arity.Add("*", 2);
-			_arity.Add("/", 2);
-			_arity.Add("%", 2);
-			_arity.Add("^", 2);
-			_arity.Add("&", 2);
-			_arity.Add("|", 2);
-			_arity.Add("(", -1);
-			_arity.Add(")", -1);
-			_arity.Add(",", -1);
-			_arity.Add("sin(", 1);
-			_arity.Add("cos(", 1);
-			_arity.Add("tan(", 1);
-			_arity.Add("asin(", 1);
-			_arity.Add("acos(", 1);
-			_arity.Add("atan(", 1);
-			_arity.Add("sqrt(", 1);
-			_arity.Add("log(", 2);
-			_arity.Add("ln(", 1);
-			_arity.Add("abs(", 1);
-			_arity.Add("exp(", 1);
-			_arity.Add("fact(", 1);
-			_arity.Add("ncr(", 2);
-			_arity.Add("npr(", 2);
-			_arity.Add("gcd(", 0);
-			_arity.Add("lcm(", 0);
-			_arity.Add("max(", 0);
-			_arity.Add("min(", 0);
-			_arity.Add("floor(", 1);
-			_arity.Add("frac(", 1);
+            //Arities
+            _arity = new Dictionary<string, int> {
+                { "+", 2 },
+                { "-", 2 },
+                { "!", 1 },
+                { "*", 2 },
+                { "/", 2 },
+                { "%", 2 },
+                { "^", 2 },
+                { "&", 2 },
+                { "|", 2 },
+                { "(", -1 },
+                { ")", -1 },
+                { ",", -1 },
+                { "sin(", 1 },
+                { "cos(", 1 },
+                { "tan(", 1 },
+                { "asin(", 1 },
+                { "acos(", 1 },
+                { "atan(", 1 },
+                { "sqrt(", 1 },
+                { "log(", 2 },
+                { "ln(", 1 },
+                { "abs(", 1 },
+                { "exp(", 1 },
+                { "fact(", 1 },
+                { "ncr(", 2 },
+                { "npr(", 2 },
+                { "gcd(", 0 },
+                { "lcm(", 0 },
+                { "max(", 0 },
+                { "min(", 0 },
+                { "floor(", 1 },
+                { "frac(", 1 }
+            };
+        }
 
-			//Set initialized flag to true
-			_initialized = true;
-		}
+        private static readonly string[] _functions;
+        private static readonly string[] _constants;
+        private static readonly string[] _operators;
+        private static readonly string[] _seperators;
 
-		private static readonly string[] _functions;
-		private static readonly string[] _constants;
-		private static readonly string[] _operators;
-		private static readonly string[] _seperators;
-
-		private static readonly Dictionary<string, int> _precedence;
-		private static readonly Dictionary<string, AssociativityType> _associativity;
-		private static readonly Dictionary<string, int> _arity;
-
-		public static string[] ValidTokens;
-		public static string[] PolyadicFunctions;
+        private static readonly Dictionary<string, int> _precedence;
+        private static readonly Dictionary<string, AssociativityType> _associativity;
+        private static readonly Dictionary<string, int> _arity;
 
 
-
-		// ==================
+        // Public properties
+        public static string[] ValidTokens { get; }
+        public static string[] PolyadicFunctions { get; }
 
 
 
-		//Constructor
-		public Token(string c)
-		{
-			//Content
-			c = c.ToLower();
-			Content = c;
-
-
-			//Type
-			double n;
-			if(double.TryParse(c, out n))
-				Type = TokenType.Number;
-			else if (_constants.Contains(c))
-				Type = TokenType.Constant;
-			else if(_operators.Contains(c))
-				Type = TokenType.Operator;
-			else if(_functions.Contains(c))
-				Type = TokenType.Function;
-			else if(_seperators.Contains(c))
-			{
-				switch(c)
-				{
-					case "(":
-						Type = TokenType.LeftParenthesis;
-						break;
-					case ")":
-						Type = TokenType.RightParathesis;
-						break;
-					case ",":
-						Type = TokenType.ArgumentSeperator;
-						break;
-				}
-			}
-
-
-			//Precendence and associativity
-			if (Type == TokenType.Number || Type == TokenType.Constant)
-			{
-				Precedence = 99;
-				Associativity = AssociativityType.None;
-				Arity = 0;
-			}
-			else
-			{
-				Precedence = _precedence[c];
-				Associativity = _associativity[c];
-				Arity = _arity[c];
-			}
-		}
-
-
-		//Enums
+        // ==================
 
 
 
-		//Properties
-		public string Content { get; }
-		public TokenType Type { get; }
-		public int Precedence { get; private set; }
-		public AssociativityType Associativity { get; private set; }
-		public int Arity { get; set; }
+        //Constructor
+        public Token(string c)
+        {
+            //Content
+            c = c.ToLower();
+            Content = c;
+
+
+            //Type
+            if (double.TryParse(c, out double _)) {
+                Type = TokenType.Number;
+            }
+            else if (_constants.Contains(c)) {
+                Type = TokenType.Constant;
+            }
+            else if (_operators.Contains(c)) {
+                Type = TokenType.Operator;
+            }
+            else if (_functions.Contains(c)) {
+                Type = TokenType.Function;
+            }
+            else if (_seperators.Contains(c)) {
+                switch (c) {
+                    case "(":
+                        Type = TokenType.LeftParenthesis;
+                        break;
+                    case ")":
+                        Type = TokenType.RightParathesis;
+                        break;
+                    case ",":
+                        Type = TokenType.ArgumentSeperator;
+                        break;
+                }
+            }
+
+
+            //Precendence and associativity
+            if (Type == TokenType.Number || Type == TokenType.Constant) {
+                Precedence = 99;
+                Associativity = AssociativityType.None;
+                Arity = 0;
+            }
+            else {
+                Precedence = _precedence[c];
+                Associativity = _associativity[c];
+                Arity = _arity[c];
+            }
+        }
+
+
+        //Properties
+        public string Content { get; }
+        public TokenType Type { get; }
+        public int Precedence { get; private set; }
+        public AssociativityType Associativity { get; private set; }
+        public int Arity { get; set; }
 
 
 
-		public override string ToString()
-		{
-			return Content;
-		}
+        public override string ToString() => Content;
 
-	}
+    }
 }
